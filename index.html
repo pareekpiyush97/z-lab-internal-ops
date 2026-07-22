@@ -4,18 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#0f172a" />
-<title>Z Lab Internal Ops — Prototype</title>
+<title>Z Lab — Start Your Job</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif; }
-  [role="tab"][aria-selected="true"] { box-shadow: inset 0 -2px 0 0 currentColor; }
-
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
   .animate-in { animation: fadeSlideIn 0.28s ease-out; }
-
   .chip-label { background-color: #ffffff; border-color: #e2e8f0; color: #334155; }
   .chip-label:hover { border-color: #94a3b8; }
   .chip-label:focus-within { outline: 2px solid #6366f1; outline-offset: 1px; }
@@ -24,105 +21,59 @@
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
 
-<div class="sticky top-0 z-10 bg-slate-900">
-  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-    <div class="flex items-center gap-2.5">
-      <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-950/50">Z</span>
-      <div>
-        <h1 class="text-sm sm:text-base font-semibold text-white leading-tight">Z Lab Internal Ops</h1>
-        <p class="text-[11px] text-slate-400">Prototype demo &middot; sample data only</p>
-      </div>
-    </div>
-    <div role="tablist" aria-label="Views" class="flex gap-1 bg-white/10 rounded-lg p-1 text-sm font-medium">
-      <button id="tab-customer" role="tab" aria-selected="true" aria-controls="view-customer" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-white bg-indigo-600 shadow-sm transition-colors">
-        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c0-4.5 3.1-7.5 7-7.5s7 3 7 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>Customer</span>
-      </button>
-      <button id="tab-staff" role="tab" aria-selected="false" aria-controls="view-staff" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition-colors">
-        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none"><rect x="4" y="4" width="6.5" height="6.5" rx="1.3" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.3" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.3" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.3" stroke="currentColor" stroke-width="1.8"/></svg>
-        <span>Staff Dashboard</span>
-      </button>
+<div class="bg-slate-900">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-2.5">
+    <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-950/50">Z</span>
+    <div>
+      <h1 class="text-sm sm:text-base font-semibold text-white leading-tight">Z Lab Design</h1>
+      <p class="text-[11px] text-slate-400">Job intake &middot; prototype demo</p>
     </div>
   </div>
   <div class="bg-amber-500/10 border-t border-amber-500/20 text-amber-400 text-xs px-4 py-1.5 text-center">
-    Prototype only — not yet connected to Supabase / live ANPR / Zoho People. See chat for the production architecture.
+    Prototype only — data stored on this device for demo purposes, not yet connected to Supabase / live ANPR / Zoho People.
   </div>
 </div>
 
 <main class="max-w-5xl mx-auto px-4 py-6">
+  <div class="max-w-md mx-auto">
+    <p class="text-sm text-slate-600 mb-4">Scan the QR at the counter to start. <span class="text-slate-400">(Demo: fill the form below to simulate a scan.)</span></p>
 
-  <!-- CUSTOMER VIEW -->
-  <section id="view-customer" role="tabpanel" aria-labelledby="tab-customer">
-    <div class="max-w-md mx-auto">
-      <p class="text-sm text-slate-600 mb-4">Scan the QR at the counter to start. <span class="text-slate-400">(Demo: fill the form below to simulate a scan.)</span></p>
-
-      <form id="intake-form" class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4 shadow-sm" novalidate>
-        <div>
-          <span class="block text-sm font-medium text-slate-700 mb-2">What are you here for? <span class="text-slate-400 font-normal">(tap all that apply)</span></span>
-          <div id="intake-services"></div>
-        </div>
-        <div>
-          <label for="cust-name" class="block text-sm font-medium text-slate-700 mb-1">Your name</label>
-          <input id="cust-name" name="name" type="text" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-        <div>
-          <label for="cust-phone" class="block text-sm font-medium text-slate-700 mb-1">Phone number</label>
-          <input id="cust-phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10}" required placeholder="10-digit mobile" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-        <div>
-          <label for="cust-car" class="block text-sm font-medium text-slate-700 mb-1">Car model <span class="text-slate-400 font-normal">(optional)</span></label>
-          <input id="cust-car" name="car" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-        <div>
-          <label for="cust-price" class="block text-sm font-medium text-slate-700 mb-1">Quoted price, if already discussed <span class="text-slate-400 font-normal">(optional)</span></label>
-          <input id="cust-price" name="price" type="number" min="0" step="50" inputmode="numeric" placeholder="e.g. 4500" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-        <p id="intake-error" class="text-xs text-red-600 hidden" role="alert"></p>
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium rounded-lg py-2.5 shadow-sm hover:shadow-md transition-all">Submit — start my job</button>
-      </form>
-
-      <div id="intake-success" class="hidden mt-5 bg-green-50 border border-green-200 rounded-2xl p-4 text-sm text-green-900" role="status" aria-live="polite"></div>
-    </div>
-  </section>
-
-  <!-- STAFF VIEW -->
-  <section id="view-staff" class="hidden" role="tabpanel" aria-labelledby="tab-staff">
-    <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"></div>
-
-    <div class="flex items-center justify-between mb-3 gap-3">
-      <div class="relative w-full sm:w-80">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none"><circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="1.8"/><line x1="14.8" y1="14.8" x2="20" y2="20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <input id="search" type="search" placeholder="Search name, phone, plate, or service..." class="w-full rounded-lg border border-slate-300 pl-9 pr-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" aria-label="Search jobs" />
+    <form id="intake-form" class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4 shadow-sm" novalidate>
+      <div>
+        <span class="block text-sm font-medium text-slate-700 mb-2">What are you here for? <span class="text-slate-400 font-normal">(tap all that apply)</span></span>
+        <div id="intake-services"></div>
       </div>
-    </div>
+      <div>
+        <label for="cust-name" class="block text-sm font-medium text-slate-700 mb-1">Your name</label>
+        <input id="cust-name" name="name" type="text" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+      <div>
+        <label for="cust-phone" class="block text-sm font-medium text-slate-700 mb-1">Phone number</label>
+        <input id="cust-phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10}" required placeholder="10-digit mobile" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+      <div>
+        <label for="cust-car" class="block text-sm font-medium text-slate-700 mb-1">Car model <span class="text-slate-400 font-normal">(optional)</span></label>
+        <input id="cust-car" name="car" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+      <div>
+        <label for="cust-price" class="block text-sm font-medium text-slate-700 mb-1">Quoted price, if already discussed <span class="text-slate-400 font-normal">(optional)</span></label>
+        <input id="cust-price" name="price" type="number" min="0" step="50" inputmode="numeric" placeholder="e.g. 4500" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+      <p id="intake-error" class="text-xs text-red-600 hidden" role="alert"></p>
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium rounded-lg py-2.5 shadow-sm hover:shadow-md transition-all">Submit — start my job</button>
+    </form>
 
-    <div class="overflow-x-auto bg-white border border-slate-200 rounded-2xl shadow-sm">
-      <table class="min-w-full text-sm">
-        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
-          <tr>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Job</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Service(s)</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Customer</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Vehicle</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Price</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Status</th>
-            <th scope="col" class="text-left px-4 py-2.5 font-medium">Action</th>
-          </tr>
-        </thead>
-        <tbody id="jobs-tbody" class="divide-y divide-slate-100"></tbody>
-      </table>
-    </div>
-  </section>
-
+    <div id="intake-success" class="hidden mt-5 bg-green-50 border border-green-200 rounded-2xl p-4 text-sm text-green-900" role="status" aria-live="polite"></div>
+  </div>
 </main>
 
-<footer class="max-w-5xl mx-auto px-4 pb-8 pt-2 text-xs text-slate-400">
-  Module A: single QR / one counter, categorized service menu (Wash & Clean, Coating, Protection, Detailing, Customization) — staff confirms the vehicle and finalizes the price. Module B (attendance, leave, salary for your 5 staff) is recommended as Zoho People + Payroll rather than custom-built — see chat for the full architecture, costs, and timeline.
-</footer>
+<footer class="max-w-5xl mx-auto px-4 pb-8 pt-2 text-xs text-slate-400 text-center">Z Lab Design</footer>
 
 <script>
 (function () {
   "use strict";
+
+  const STORAGE_KEY = "zlab_jobs_v1";
 
   const ICON_PATHS = {
     droplet: '<path d="M12 3.5C12 3.5 5.5 11 5.5 15.2C5.5 18.7 8.4 21 12 21C15.6 21 18.5 18.7 18.5 15.2C18.5 11 12 3.5 12 3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
@@ -143,8 +94,6 @@
     { label: "Detailing",     icon: "sparkle", badgeClass: "bg-violet-50 text-violet-600 border-violet-100", services: ["Car Detailing", "Interior Detailing", "Rubbing & Polishing"] },
     { label: "Customization", icon: "sliders", badgeClass: "bg-rose-50 text-rose-600 border-rose-100",       services: ["Custom Interior", "Bodykits", "Paint Job"] }
   ];
-  const SERVICES = CATEGORIES.flatMap(c => c.services);
-  // Grouping is my proposal from "row 1 wash, row 2 coatings" — confirm/correct the other 3 rows with the client.
 
   const STATE_CODES = ["DL", "UP16", "HR26", "UP14", "DL8C"];
 
@@ -160,45 +109,23 @@
     return `${s} ${l1}${l2} ${digits}`;
   }
 
-  let nextId = 1043;
-  let jobs = [
-    { id: "JOB-1041", createdAt: new Date(Date.now() - 42 * 60000), name: "Rohit Malhotra", phone: "9811020304", car: "Hyundai Creta",  plate: "UP16 CD 4821", suggestedPlate: "", services: ["PPF", "Interior Detailing"], price: 18000, status: "active" },
-    { id: "JOB-1042", createdAt: new Date(Date.now() - 12 * 60000), name: "Simran Kaur",    phone: "9873456120", car: "Maruti Baleno", plate: "",             suggestedPlate: fakePlate(), services: ["Ceramic Coating – Double Layer"], price: 8000, status: "draft" }
-  ];
-
-  let searchTerm = "";
-  let expandedId = null; // which draft job's "process" panel is open
+  function loadJobs() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw).map(j => ({ ...j, createdAt: new Date(j.createdAt) }));
+    } catch (e) {}
+    return [];
+  }
+  function saveJobs(jobs) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); } catch (e) {}
+  }
 
   const $ = (id) => document.getElementById(id);
-
-  function fmtTime(d) {
-    return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
-  }
-
-  function fmtPrice(p) {
-    return p ? "₹" + p.toLocaleString("en-IN") : "—";
-  }
-
-  function statusBadge(status) {
-    const map = {
-      draft:     ["bg-amber-50 text-amber-700",     "bg-amber-500",   "Awaiting processing"],
-      active:    ["bg-blue-50 text-blue-700",       "bg-blue-500",    "Active"],
-      delivered: ["bg-emerald-50 text-emerald-700", "bg-emerald-500", "Delivered"]
-    };
-    const [cls, dot, label] = map[status];
-    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${cls}"><span class="w-1.5 h-1.5 rounded-full ${dot}"></span>${label}</span>`;
-  }
-
-  function serviceChips(services) {
-    if (!services || !services.length) return '<span class="text-slate-300 text-xs">—</span>';
-    return services.map(s => `<span class="inline-block text-[11px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded mr-1 mb-1">${esc(s)}</span>`).join("");
-  }
 
   function clearIntakeChips() {
     document.querySelectorAll("#intake-services .chip-selected").forEach(el => el.classList.remove("chip-selected"));
   }
 
-  // ---------- Customer view: categorized service picker ----------
   function renderIntakeServices() {
     $("intake-services").innerHTML = CATEGORIES.map(cat => `
       <div class="mb-4 last:mb-0">
@@ -235,12 +162,14 @@
       return;
     }
 
-    const id = "JOB-" + (nextId++);
-    jobs.unshift({
+    const id = "JOB-" + Date.now().toString().slice(-6);
+    const allJobs = loadJobs();
+    allJobs.unshift({
       id, createdAt: new Date(),
       name, phone, car, plate: "", suggestedPlate: fakePlate(),
       services, price, status: "draft"
     });
+    saveJobs(allJobs);
 
     $("intake-form").reset();
     clearIntakeChips();
@@ -252,201 +181,24 @@
         <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">${icon("check", "w-4 h-4")}</span>
         <div>
           <p>Thanks, ${esc(name)}! <strong>${id}</strong> created for ${esc(services.join(", "))}. Head to the counter — staff will confirm your vehicle and finalize the price next.</p>
-          <button type="button" id="goto-staff" class="mt-2 text-indigo-700 underline text-sm">See it on the staff dashboard →</button>
-          <button type="button" id="start-another" class="block mt-1 text-slate-400 underline text-sm">Start another job</button>
+          <button type="button" id="start-another" class="block mt-2 text-slate-400 underline text-sm">Start another job</button>
         </div>
       </div>`;
-    $("goto-staff").addEventListener("click", () => switchView("staff"));
     $("start-another").addEventListener("click", () => {
       $("intake-success").classList.add("hidden");
       $("intake-form").classList.remove("hidden");
     });
-
-    renderStaff();
   }
 
-  // ---------- Staff view ----------
-  function renderStats() {
-    const revenue = jobs.filter(j => j.status !== "draft").reduce((sum, j) => sum + (j.price || 0), 0);
-    const pending = jobs.filter(j => j.status === "draft").length;
-    const active = jobs.filter(j => j.status === "active").length;
-
-    const cards = [
-      ["Jobs today", jobs.length, "border-l-slate-300"],
-      ["Revenue today", fmtPrice(revenue), "border-l-emerald-400"],
-      ["Awaiting processing", pending, "border-l-amber-400"],
-      ["Active", active, "border-l-blue-400"]
-    ];
-    $("stats").innerHTML = cards.map(([label, val, border]) => `
-      <div class="bg-white border border-slate-200 ${border} border-l-4 rounded-xl p-3 shadow-sm hover:shadow-md transition-shadow">
-        <div class="text-xs text-slate-500">${label}</div>
-        <div class="text-xl font-semibold mt-0.5 text-slate-900">${val}</div>
-      </div>
-    `).join("");
-  }
-
-  function processPanelRow(job) {
-    const checks = SERVICES.map(s => {
-      const idAttr = `svc-${job.id}-${s.replace(/[^a-zA-Z0-9]/g, "")}`;
-      const isChecked = job.services.includes(s);
-      return `
-        <label for="${idAttr}" class="chip-label ${isChecked ? "chip-selected" : ""} flex items-center gap-1.5 text-xs border rounded-lg px-2.5 py-2 cursor-pointer transition-all">
-          <input type="checkbox" id="${idAttr}" class="svc-checkbox sr-only" data-id="${job.id}" value="${esc(s)}" ${isChecked ? "checked" : ""} />
-          ${esc(s)}
-        </label>`;
-    }).join("");
-
-    return `
-      <tr class="animate-in">
-        <td colspan="7" class="px-4 py-4 bg-slate-50 border-t border-b border-slate-200">
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">ANPR suggested plate — edit if misread</label>
-              <input type="text" value="${esc(job.suggestedPlate)}" data-action="plate-input" data-id="${job.id}" class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
-              <label class="block text-xs font-medium text-slate-500 mb-1 mt-3">Quoted price (₹)${job.price ? ' <span class="text-slate-400 font-normal">— from customer, confirm or adjust</span>' : ""}</label>
-              <input type="number" min="0" step="50" placeholder="e.g. 4500" value="${job.price || ""}" data-action="price-input" data-id="${job.id}" class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Service(s) — customer's picks are pre-selected, adjust as needed</label>
-              <div class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">${checks}</div>
-            </div>
-          </div>
-          <p class="process-error text-xs text-red-600 hidden mt-3" data-id="${job.id}"></p>
-          <button data-action="activate-job" data-id="${job.id}" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-sm hover:shadow transition-all">Activate job</button>
-        </td>
-      </tr>`;
-  }
-
-  function renderTable() {
-    const term = searchTerm.trim().toLowerCase();
-    const rows = jobs.filter(j => {
-      if (!term) return true;
-      const hay = [j.name, j.phone, j.plate, ...(j.services || [])].join(" ").toLowerCase();
-      return hay.includes(term);
-    });
-
-    $("jobs-tbody").innerHTML = rows.map(j => {
-      let actionCell = "";
-      let serviceCell = serviceChips(j.services);
-
-      if (j.status === "draft") {
-        actionCell = `<button data-action="toggle-process" data-id="${j.id}" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-md shadow-sm hover:shadow transition-all">${expandedId === j.id ? "Close" : "Process →"}</button>`;
-      } else if (j.status === "active") {
-        actionCell = `
-          <div class="flex items-center gap-1.5">
-            <input type="text" value="${esc(j.phone)}" data-action="phone-input" data-id="${j.id}" class="w-28 rounded-md border border-slate-300 px-2 py-1 text-xs" aria-label="Contact phone for ${j.id}" />
-            <button data-action="save-contact" data-id="${j.id}" class="text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded-md transition-colors">Save</button>
-            <button data-action="mark-delivered" data-id="${j.id}" class="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md transition-colors">Deliver</button>
-          </div>`;
-      } else {
-        actionCell = `<span class="text-xs text-slate-400">Closed</span>`;
-      }
-
-      const mainRow = `
-        <tr class="hover:bg-slate-50 transition-colors">
-          <td class="px-4 py-2.5 align-top">
-            <div class="font-medium">${j.id}</div>
-            <div class="text-xs text-slate-400">${fmtTime(j.createdAt)}</div>
-          </td>
-          <td class="px-4 py-2.5 align-top max-w-[180px]">${serviceCell}</td>
-          <td class="px-4 py-2.5 align-top">
-            <div>${esc(j.name)}</div>
-            <div class="text-xs text-slate-400">${esc(j.phone)}</div>
-          </td>
-          <td class="px-4 py-2.5 align-top">
-            <div>${j.plate ? esc(j.plate) : '<span class="text-slate-300">—</span>'}</div>
-            <div class="text-xs text-slate-400">${esc(j.car) || "—"}</div>
-          </td>
-          <td class="px-4 py-2.5 align-top">${fmtPrice(j.price)}</td>
-          <td class="px-4 py-2.5 align-top">${statusBadge(j.status)}</td>
-          <td class="px-4 py-2.5 align-top">${actionCell}</td>
-        </tr>`;
-
-      const panelRow = (j.status === "draft" && j.id === expandedId) ? processPanelRow(j) : "";
-      return mainRow + panelRow;
-    }).join("") || `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400 text-sm">No jobs match "${esc(searchTerm)}"</td></tr>`;
-  }
-
-  function renderStaff() {
-    renderStats();
-    renderTable();
-  }
-
-  // ---------- Chip select-state (robust, not dependent on CSS :has support) ----------
-  $("intake-services") && $("intake-services").addEventListener("change", (e) => {
+  $("intake-services").addEventListener("change", (e) => {
     if (!e.target.classList || !e.target.classList.contains("intake-svc-checkbox")) return;
     const label = e.target.closest("label");
     if (label) label.classList.toggle("chip-selected", e.target.checked);
   });
-  $("jobs-tbody").addEventListener("change", (e) => {
-    if (!e.target.classList || !e.target.classList.contains("svc-checkbox")) return;
-    const label = e.target.closest("label");
-    if (label) label.classList.toggle("chip-selected", e.target.checked);
-  });
-
-  // ---------- Actions (event delegation) ----------
-  document.addEventListener("click", (e) => {
-    const action = e.target.dataset.action;
-    if (!action) return;
-    const id = e.target.dataset.id;
-    const job = jobs.find(j => j.id === id);
-    if (!job) return;
-
-    if (action === "toggle-process") {
-      expandedId = (expandedId === id) ? null : id;
-      renderTable();
-    }
-    if (action === "activate-job") {
-      const plateInput = document.querySelector(`input[data-action="plate-input"][data-id="${id}"]`);
-      const priceInput = document.querySelector(`input[data-action="price-input"][data-id="${id}"]`);
-      const checked = Array.from(document.querySelectorAll(`input.svc-checkbox[data-id="${id}"]:checked`)).map(cb => cb.value);
-      const price = Number(priceInput.value);
-      const errEl = document.querySelector(`.process-error[data-id="${id}"]`);
-
-      if (checked.length === 0 || !price || price <= 0) {
-        errEl.textContent = "Pick at least one service and enter a valid quoted price.";
-        errEl.classList.remove("hidden");
-        return;
-      }
-
-      job.plate = plateInput.value.trim() || job.suggestedPlate;
-      job.services = checked;
-      job.price = price;
-      job.status = "active";
-      expandedId = null;
-      renderStaff();
-    }
-    if (action === "save-contact") {
-      const input = document.querySelector(`input[data-action="phone-input"][data-id="${id}"]`);
-      job.phone = input.value.trim();
-      renderStaff();
-    }
-    if (action === "mark-delivered") {
-      job.status = "delivered";
-      renderStaff();
-    }
-  });
 
   $("intake-form").addEventListener("submit", submitIntake);
-  $("search").addEventListener("input", (e) => { searchTerm = e.target.value; renderTable(); });
 
-  // ---------- View switching ----------
-  function switchView(view) {
-    const isCustomer = view === "customer";
-    $("view-customer").classList.toggle("hidden", !isCustomer);
-    $("view-staff").classList.toggle("hidden", isCustomer);
-    $("tab-customer").setAttribute("aria-selected", String(isCustomer));
-    $("tab-staff").setAttribute("aria-selected", String(!isCustomer));
-    $("tab-customer").className = "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors " + (isCustomer ? "text-white bg-indigo-600 shadow-sm" : "text-slate-300 hover:text-white");
-    $("tab-staff").className = "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors " + (!isCustomer ? "text-white bg-indigo-600 shadow-sm" : "text-slate-300 hover:text-white");
-    if (!isCustomer) renderStaff();
-  }
-  $("tab-customer").addEventListener("click", () => switchView("customer"));
-  $("tab-staff").addEventListener("click", () => switchView("staff"));
-
-  // ---------- Init ----------
   renderIntakeServices();
-  renderStaff();
 })();
 </script>
 </body>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f172a" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Z Lab — Team Console</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeSlideIn 0.28s ease-out; }
+  .chip-label { background-color: #ffffff; border-color: #e2e8f0; color: #334155; }
+  .chip-label:hover { border-color: #94a3b8; }
+  .chip-label:focus-within { outline: 2px solid #6366f1; outline-offset: 1px; }
+  .chip-selected { background-color: #4f46e5 !important; border-color: #4f46e5 !important; color: #ffffff !important; box-shadow: 0 4px 10px -3px rgba(79,70,229,0.5); }
+</style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+
+<div id="pin-gate" class="min-h-screen flex items-center justify-center px-4">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 w-full max-w-xs text-center">
+    <div class="mx-auto w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-bold flex items-center justify-center mb-3">Z</div>
+    <h1 class="text-sm font-semibold mb-1">Staff access</h1>
+    <p class="text-xs text-slate-400 mb-4">Z Lab Internal Ops — team only</p>
+    <input id="pin-input" type="password" inputmode="numeric" placeholder="Staff PIN" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-center mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+    <button id="pin-submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg py-2 transition-colors">Enter</button>
+    <p id="pin-error" class="hidden text-xs text-red-600 mt-2">Wrong PIN, try again.</p>
+  </div>
+</div>
+
+<div id="staff-app" class="hidden">
+  <div class="sticky top-0 z-10 bg-slate-900">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-950/50">Z</span>
+        <div>
+          <h1 class="text-sm sm:text-base font-semibold text-white leading-tight">Z Lab Internal Ops</h1>
+          <p class="text-[11px] text-slate-400">Team console &middot; prototype demo</p>
+        </div>
+      </div>
+      <span class="text-xs text-slate-400 bg-white/10 px-2.5 py-1 rounded-full">Staff only</span>
+    </div>
+    <div class="bg-amber-500/10 border-t border-amber-500/20 text-amber-400 text-xs px-4 py-1.5 text-center">
+      Prototype only — data stored on this device for demo purposes, not yet connected to Supabase / live ANPR / Zoho People.
+    </div>
+  </div>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"></div>
+
+    <div class="flex items-center justify-between mb-3 gap-3">
+      <div class="relative w-full sm:w-80">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none"><circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="1.8"/><line x1="14.8" y1="14.8" x2="20" y2="20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search name, phone, plate, or service..." class="w-full rounded-lg border border-slate-300 pl-9 pr-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" aria-label="Search jobs" />
+      </div>
+    </div>
+
+    <div class="overflow-x-auto bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+          <tr>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Job</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Service(s)</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Customer</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Vehicle</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Price</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Status</th>
+            <th scope="col" class="text-left px-4 py-2.5 font-medium">Action</th>
+          </tr>
+        </thead>
+        <tbody id="jobs-tbody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-4 pb-8 pt-2 text-xs text-slate-400">
+    Customer intake lives on a separate page (index.html) with none of this code in it. This PIN is a casual deterrent only — it's visible in this page's source, not real security. Real access control comes with the Supabase + auth build.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "zlab_jobs_v1";
+  const STAFF_PIN = "1234"; // placeholder — change this. See footer note on what this does and doesn't protect against.
+
+  const SERVICES = ["Car Wash", "Dry Clean", "Ceramic Coating – Single Layer", "Ceramic Coating – Double Layer", "Ceramic Coating – Triple Layer", "Graphene Coating – Single Layer", "Graphene Coating – Double Layer", "Graphene Coating – Triple Layer", "PPF", "Car Detailing", "Interior Detailing", "Rubbing & Polishing", "Custom Interior", "Bodykits", "Paint Job"];
+
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  }
+
+  function loadJobs() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw).map(j => ({ ...j, createdAt: new Date(j.createdAt) }));
+    } catch (e) {}
+    return [];
+  }
+  function saveJobs(jobs) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); } catch (e) {}
+  }
+
+  const SEED_JOBS = [
+    { id: "JOB-1041", createdAt: new Date(Date.now() - 42 * 60000), name: "Rohit Malhotra", phone: "9811020304", car: "Hyundai Creta",  plate: "UP16 CD 4821", suggestedPlate: "", services: ["PPF", "Interior Detailing"], price: 18000, status: "active" },
+    { id: "JOB-1042", createdAt: new Date(Date.now() - 12 * 60000), name: "Simran Kaur",    phone: "9873456120", car: "Maruti Baleno", plate: "",             suggestedPlate: "UP14 QR 7731", services: ["Ceramic Coating – Double Layer"], price: 8000, status: "draft" }
+  ];
+
+  let jobs = loadJobs();
+  if (jobs.length === 0) { jobs = SEED_JOBS; saveJobs(jobs); }
+
+  let searchTerm = "";
+  let expandedId = null;
+
+  const $ = (id) => document.getElementById(id);
+
+  function fmtTime(d) { return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }); }
+  function fmtPrice(p) { return p ? "₹" + p.toLocaleString("en-IN") : "—"; }
+
+  function statusBadge(status) {
+    const map = {
+      draft:     ["bg-amber-50 text-amber-700",     "bg-amber-500",   "Awaiting processing"],
+      active:    ["bg-blue-50 text-blue-700",       "bg-blue-500",    "Active"],
+      delivered: ["bg-emerald-50 text-emerald-700", "bg-emerald-500", "Delivered"]
+    };
+    const [cls, dot, label] = map[status];
+    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${cls}"><span class="w-1.5 h-1.5 rounded-full ${dot}"></span>${label}</span>`;
+  }
+
+  function serviceChips(services) {
+    if (!services || !services.length) return '<span class="text-slate-300 text-xs">—</span>';
+    return services.map(s => `<span class="inline-block text-[11px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded mr-1 mb-1">${esc(s)}</span>`).join("");
+  }
+
+  function renderStats() {
+    const revenue = jobs.filter(j => j.status !== "draft").reduce((sum, j) => sum + (j.price || 0), 0);
+    const pending = jobs.filter(j => j.status === "draft").length;
+    const active = jobs.filter(j => j.status === "active").length;
+    const cards = [
+      ["Jobs today", jobs.length, "border-l-slate-300"],
+      ["Revenue today", fmtPrice(revenue), "border-l-emerald-400"],
+      ["Awaiting processing", pending, "border-l-amber-400"],
+      ["Active", active, "border-l-blue-400"]
+    ];
+    $("stats").innerHTML = cards.map(([label, val, border]) => `
+      <div class="bg-white border border-slate-200 ${border} border-l-4 rounded-xl p-3 shadow-sm hover:shadow-md transition-shadow">
+        <div class="text-xs text-slate-500">${label}</div>
+        <div class="text-xl font-semibold mt-0.5 text-slate-900">${val}</div>
+      </div>
+    `).join("");
+  }
+
+  function processPanelRow(job) {
+    const checks = SERVICES.map(s => {
+      const idAttr = `svc-${job.id}-${s.replace(/[^a-zA-Z0-9]/g, "")}`;
+      const isChecked = job.services.includes(s);
+      return `
+        <label for="${idAttr}" class="chip-label ${isChecked ? "chip-selected" : ""} flex items-center gap-1.5 text-xs border rounded-lg px-2.5 py-2 cursor-pointer transition-all">
+          <input type="checkbox" id="${idAttr}" class="svc-checkbox sr-only" data-id="${job.id}" value="${esc(s)}" ${isChecked ? "checked" : ""} />
+          ${esc(s)}
+        </label>`;
+    }).join("");
+
+    return `
+      <tr class="animate-in">
+        <td colspan="7" class="px-4 py-4 bg-slate-50 border-t border-b border-slate-200">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">ANPR suggested plate — edit if misread</label>
+              <input type="text" value="${esc(job.suggestedPlate)}" data-action="plate-input" data-id="${job.id}" class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
+              <label class="block text-xs font-medium text-slate-500 mb-1 mt-3">Quoted price (₹)${job.price ? ' <span class="text-slate-400 font-normal">— from customer, confirm or adjust</span>' : ""}</label>
+              <input type="number" min="0" step="50" placeholder="e.g. 4500" value="${job.price || ""}" data-action="price-input" data-id="${job.id}" class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Service(s) — customer's picks are pre-selected, adjust as needed</label>
+              <div class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">${checks}</div>
+            </div>
+          </div>
+          <p class="process-error text-xs text-red-600 hidden mt-3" data-id="${job.id}"></p>
+          <button data-action="activate-job" data-id="${job.id}" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-sm hover:shadow transition-all">Activate job</button>
+        </td>
+      </tr>`;
+  }
+
+  function renderTable() {
+    const term = searchTerm.trim().toLowerCase();
+    const rows = jobs.filter(j => {
+      if (!term) return true;
+      const hay = [j.name, j.phone, j.plate, ...(j.services || [])].join(" ").toLowerCase();
+      return hay.includes(term);
+    });
+
+    $("jobs-tbody").innerHTML = rows.map(j => {
+      let actionCell = "";
+      let serviceCell = serviceChips(j.services);
+
+      if (j.status === "draft") {
+        actionCell = `<button data-action="toggle-process" data-id="${j.id}" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-md shadow-sm hover:shadow transition-all">${expandedId === j.id ? "Close" : "Process →"}</button>`;
+      } else if (j.status === "active") {
+        actionCell = `
+          <div class="flex items-center gap-1.5">
+            <input type="text" value="${esc(j.phone)}" data-action="phone-input" data-id="${j.id}" class="w-28 rounded-md border border-slate-300 px-2 py-1 text-xs" aria-label="Contact phone for ${j.id}" />
+            <button data-action="save-contact" data-id="${j.id}" class="text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded-md transition-colors">Save</button>
+            <button data-action="mark-delivered" data-id="${j.id}" class="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md transition-colors">Deliver</button>
+          </div>`;
+      } else {
+        actionCell = `<span class="text-xs text-slate-400">Closed</span>`;
+      }
+
+      const mainRow = `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-2.5 align-top">
+            <div class="font-medium">${j.id}</div>
+            <div class="text-xs text-slate-400">${fmtTime(j.createdAt)}</div>
+          </td>
+          <td class="px-4 py-2.5 align-top max-w-[180px]">${serviceCell}</td>
+          <td class="px-4 py-2.5 align-top">
+            <div>${esc(j.name)}</div>
+            <div class="text-xs text-slate-400">${esc(j.phone)}</div>
+          </td>
+          <td class="px-4 py-2.5 align-top">
+            <div>${j.plate ? esc(j.plate) : '<span class="text-slate-300">—</span>'}</div>
+            <div class="text-xs text-slate-400">${esc(j.car) || "—"}</div>
+          </td>
+          <td class="px-4 py-2.5 align-top">${fmtPrice(j.price)}</td>
+          <td class="px-4 py-2.5 align-top">${statusBadge(j.status)}</td>
+          <td class="px-4 py-2.5 align-top">${actionCell}</td>
+        </tr>`;
+
+      const panelRow = (j.status === "draft" && j.id === expandedId) ? processPanelRow(j) : "";
+      return mainRow + panelRow;
+    }).join("") || `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400 text-sm">No jobs match "${esc(searchTerm)}"</td></tr>`;
+  }
+
+  function renderStaff() { renderStats(); renderTable(); }
+
+  $("jobs-tbody").addEventListener("change", (e) => {
+    if (!e.target.classList || !e.target.classList.contains("svc-checkbox")) return;
+    const label = e.target.closest("label");
+    if (label) label.classList.toggle("chip-selected", e.target.checked);
+  });
+
+  document.addEventListener("click", (e) => {
+    const action = e.target.dataset.action;
+    if (!action) return;
+    const id = e.target.dataset.id;
+    const job = jobs.find(j => j.id === id);
+    if (!job) return;
+
+    if (action === "toggle-process") {
+      expandedId = (expandedId === id) ? null : id;
+      renderTable();
+    }
+    if (action === "activate-job") {
+      const plateInput = document.querySelector(`input[data-action="plate-input"][data-id="${id}"]`);
+      const priceInput = document.querySelector(`input[data-action="price-input"][data-id="${id}"]`);
+      const checked = Array.from(document.querySelectorAll(`input.svc-checkbox[data-id="${id}"]:checked`)).map(cb => cb.value);
+      const price = Number(priceInput.value);
+      const errEl = document.querySelector(`.process-error[data-id="${id}"]`);
+
+      if (checked.length === 0 || !price || price <= 0) {
+        errEl.textContent = "Pick at least one service and enter a valid quoted price.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      job.plate = plateInput.value.trim() || job.suggestedPlate;
+      job.services = checked;
+      job.price = price;
+      job.status = "active";
+      expandedId = null;
+      saveJobs(jobs);
+      renderStaff();
+    }
+    if (action === "save-contact") {
+      const input = document.querySelector(`input[data-action="phone-input"][data-id="${id}"]`);
+      job.phone = input.value.trim();
+      saveJobs(jobs);
+      renderStaff();
+    }
+    if (action === "mark-delivered") {
+      job.status = "delivered";
+      saveJobs(jobs);
+      renderStaff();
+    }
+  });
+
+  $("search").addEventListener("input", (e) => { searchTerm = e.target.value; renderTable(); });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY) {
+      jobs = loadJobs();
+      renderStaff();
+    }
+  });
+
+  // ---------- PIN gate ----------
+  function unlock() {
+    $("pin-gate").classList.add("hidden");
+    $("staff-app").classList.remove("hidden");
+    renderStaff();
+  }
+  $("pin-submit").addEventListener("click", () => {
+    if ($("pin-input").value === STAFF_PIN) {
+      unlock();
+    } else {
+      $("pin-error").classList.remove("hidden");
+      $("pin-input").value = "";
+      $("pin-input").focus();
+    }
+  });
+  $("pin-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("pin-submit").click(); });
+  $("pin-input").focus();
+})();
+</script>
+</body>
+</html>
