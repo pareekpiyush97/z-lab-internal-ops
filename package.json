@@ -1,0 +1,40 @@
+{
+  "name": "techplus-os",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TechPlus Operating System for Z Labs — Z Lab Design luxury car detailing studio: public site + live booking/lead/content management backend.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:seed": "tsx scripts/seed.ts",
+    "hash-password": "tsx scripts/hash-password.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "jose": "^5.9.3",
+    "next": "15.5.21",
+    "pg": "^8.22.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.16.10",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.14",
+    "sharp": "^0.35.3"
+  }
+}
