@@ -20,6 +20,10 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
+export const changePasswordSchema = z.object({
+  newPassword: z.string().min(6, 'Password must be at least 6 characters').max(200),
+});
+
 export const serviceSchema = z.object({
   key: z
     .string()
