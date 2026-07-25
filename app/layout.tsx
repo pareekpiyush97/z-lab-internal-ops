@@ -1,10 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Z Lab Design — Luxury Car Detailing Studio, Indirapuram',
   description:
     "World-class PPF, Ceramic Coating, and Graphene finishes for the world's most prestigious vehicles. Indirapuram, Ghaziabad.",
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
