@@ -57,7 +57,7 @@ export default function JobProcessPanel({
                 type="text"
                 value={plate}
                 onChange={(e) => setPlate(e.target.value.toUpperCase())}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm uppercase"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm uppercase"
               />
               <button
                 type="button"
@@ -78,7 +78,7 @@ export default function JobProcessPanel({
               placeholder="e.g. 4500"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>

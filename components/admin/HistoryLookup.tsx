@@ -71,7 +71,7 @@ export default function HistoryLookup() {
           placeholder="Enter a plate number, e.g. DL8C AB1234"
           value={plate}
           onChange={(e) => setPlate(e.target.value.toUpperCase())}
-          className="w-full sm:w-80 rounded-md border border-slate-300 px-3 py-2 text-sm uppercase"
+          className="w-full sm:w-80 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-3 py-2 text-sm uppercase"
         />
         <button
           type="submit"

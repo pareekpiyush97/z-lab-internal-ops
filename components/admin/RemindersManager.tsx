@@ -103,7 +103,7 @@ export default function RemindersManager({
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
           />
         </div>
         <div>
@@ -112,7 +112,7 @@ export default function RemindersManager({
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
           />
         </div>
         <button

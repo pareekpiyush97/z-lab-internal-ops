@@ -192,7 +192,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 type="text"
                 value={intake.customerName}
                 onChange={(e) => setIntake((p) => ({ ...p, customerName: e.target.value }))}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
               />
             </div>
             <div>
@@ -201,7 +201,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 type="tel"
                 value={intake.phone}
                 onChange={(e) => setIntake((p) => ({ ...p, phone: e.target.value }))}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
               />
             </div>
             <div>
@@ -210,7 +210,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 type="text"
                 value={intake.carModel}
                 onChange={(e) => setIntake((p) => ({ ...p, carModel: e.target.value }))}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
               />
             </div>
             <div>
@@ -219,7 +219,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 type="text"
                 value={intake.customerPlate}
                 onChange={(e) => setIntake((p) => ({ ...p, customerPlate: e.target.value.toUpperCase() }))}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm uppercase"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm uppercase"
               />
             </div>
             <div>
@@ -230,7 +230,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 step={50}
                 value={intake.price}
                 onChange={(e) => setIntake((p) => ({ ...p, price: e.target.value }))}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
               />
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
         placeholder="Search by name, phone, or car number…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full sm:w-80 rounded-md border border-slate-300 px-3 py-2 text-sm mb-4"
+        className="w-full sm:w-80 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-3 py-2 text-sm mb-4"
       />
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">

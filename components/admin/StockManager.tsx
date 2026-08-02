@@ -192,7 +192,7 @@ export default function StockManager({
               type="text"
               value={itemForm.name}
               onChange={(e) => setItemForm((p) => ({ ...p, name: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>
@@ -200,7 +200,7 @@ export default function StockManager({
             <select
               value={itemForm.category}
               onChange={(e) => setItemForm((p) => ({ ...p, category: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             >
               {STOCK_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -216,7 +216,7 @@ export default function StockManager({
               min={0}
               value={itemForm.qty}
               onChange={(e) => setItemForm((p) => ({ ...p, qty: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>
@@ -226,7 +226,7 @@ export default function StockManager({
               placeholder="ltr, pcs…"
               value={itemForm.unit}
               onChange={(e) => setItemForm((p) => ({ ...p, unit: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>
@@ -236,7 +236,7 @@ export default function StockManager({
               min={0}
               value={itemForm.lowAt}
               onChange={(e) => setItemForm((p) => ({ ...p, lowAt: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           {itemError && <p className="text-xs text-red-600 sm:col-span-5">{itemError}</p>}
@@ -259,7 +259,7 @@ export default function StockManager({
               placeholder="Matches an existing item, or creates one"
               value={purchaseForm.itemName}
               onChange={(e) => setPurchaseForm((p) => ({ ...p, itemName: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>
@@ -269,7 +269,7 @@ export default function StockManager({
               min={1}
               value={purchaseForm.qty}
               onChange={(e) => setPurchaseForm((p) => ({ ...p, qty: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div>
@@ -279,7 +279,7 @@ export default function StockManager({
               min={0}
               value={purchaseForm.unitCost}
               onChange={(e) => setPurchaseForm((p) => ({ ...p, unitCost: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
             />
           </div>
           <div className="text-xs text-slate-500">

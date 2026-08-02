@@ -41,7 +41,7 @@ export default function ActiveJobRow({
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-32 rounded-md border border-slate-300 px-1.5 py-1 text-xs"
+          className="w-32 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-1.5 py-1 text-xs"
         />
         {dirty && (
           <button
