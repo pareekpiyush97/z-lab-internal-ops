@@ -136,7 +136,7 @@ create table if not exists jobs (
   suggested_plate text,  -- ANPR-suggested; simulated today, real once the camera integration lands
   services        jsonb not null default '[]'::jsonb,
   price           integer,
-  status          text not null default 'draft' check (status in ('draft','active','delivered')),
+  status          text not null default 'draft' check (status in ('draft','active','completed','delivered')),
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
@@ -148,6 +148,12 @@ create index if not exists jobs_customer_plate_idx on jobs (customer_plate);
 drop trigger if exists jobs_set_updated_at on jobs;
 create trigger jobs_set_updated_at before update on jobs
   for each row execute function set_updated_at();
+
+-- Migrate the jobs status check to include the 'completed' (Ready) step:
+-- New -> Working (active) -> Ready (completed) -> Delivered.
+alter table jobs drop constraint if exists jobs_status_check;
+alter table jobs add constraint jobs_status_check
+  check (status in ('draft','active','completed','delivered'));
 
 create table if not exists stock_items (
   id         uuid primary key default gen_random_uuid(),

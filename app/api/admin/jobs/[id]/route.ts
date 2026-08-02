@@ -17,12 +17,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: parsed.error.errors[0]?.message || 'Invalid input.' }, { status: 400 });
   }
 
-  // Activating a job (draft -> active) requires services + a valid price,
-  // same guard the prototype's "Activate job" button enforced client-side.
+  // Starting work (New -> Working) requires at least one work item and a price.
   if (parsed.data.status === 'active') {
     if (!parsed.data.services?.length || !parsed.data.price || parsed.data.price <= 0) {
       return NextResponse.json(
-        { error: 'Pick at least one service and enter a valid quoted price to activate.' },
+        { error: 'Add at least one work item and a price to start the work.' },
         { status: 400 }
       );
     }

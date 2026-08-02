@@ -14,12 +14,14 @@ interface HistorySummary {
 const STATUS_STYLES: Record<Job['status'], string> = {
   draft: 'bg-amber-100 text-amber-800',
   active: 'bg-blue-100 text-blue-800',
+  completed: 'bg-indigo-100 text-indigo-800',
   delivered: 'bg-emerald-100 text-emerald-800',
 };
 
 const STATUS_LABELS: Record<Job['status'], string> = {
-  draft: 'Awaiting confirm',
-  active: 'Active',
+  draft: 'New',
+  active: 'Working',
+  completed: 'Ready',
   delivered: 'Delivered',
 };
 

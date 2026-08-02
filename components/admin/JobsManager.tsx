@@ -5,7 +5,7 @@ import type { Job } from '@/lib/types';
 import { JOB_CATEGORIES } from '@/lib/job-catalog';
 import JobIcon from './JobIcon';
 import JobProcessPanel from './JobProcessPanel';
-import ActiveJobRow from './ActiveJobRow';
+import JobActionRow from './JobActionRow';
 
 type IntakeForm = {
   customerName: string;
@@ -34,12 +34,14 @@ function isToday(iso: string): boolean {
 const STATUS_STYLES: Record<Job['status'], string> = {
   draft: 'bg-amber-100 text-amber-800',
   active: 'bg-blue-100 text-blue-800',
+  completed: 'bg-indigo-100 text-indigo-800',
   delivered: 'bg-emerald-100 text-emerald-800',
 };
 
 const STATUS_LABELS: Record<Job['status'], string> = {
-  draft: 'Awaiting confirm',
-  active: 'Active',
+  draft: 'New',
+  active: 'Working',
+  completed: 'Ready',
   delivered: 'Delivered',
 };
 
@@ -60,10 +62,10 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
 
   const stats = useMemo(() => {
     const today = jobs.filter((j) => isToday(j.createdAt)).length;
-    const draft = jobs.filter((j) => j.status === 'draft').length;
-    const active = jobs.filter((j) => j.status === 'active').length;
+    const working = jobs.filter((j) => j.status === 'active').length;
+    const ready = jobs.filter((j) => j.status === 'completed').length;
     const deliveredToday = jobs.filter((j) => j.status === 'delivered' && isToday(j.updatedAt)).length;
-    return { today, draft, active, deliveredToday };
+    return { today, working, ready, deliveredToday };
   }, [jobs]);
 
   const filtered = useMemo(() => {
@@ -88,15 +90,15 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const submitIntake = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!intake.customerName.trim()) {
-      setIntakeError('Customer name is required.');
+      setIntakeError('Customer name is needed.');
       return;
     }
     if (!/^[0-9]{10}$/.test(intake.phone.trim())) {
-      setIntakeError('Enter a valid 10-digit mobile number.');
+      setIntakeError('Enter a valid 10-digit phone number.');
       return;
     }
     if (intake.services.size === 0) {
-      setIntakeError('Select at least one service (a rough idea is fine — confirm exact scope at processing).');
+      setIntakeError('Pick at least one work item (you can change it later).');
       return;
     }
     setIntakeError('');
@@ -116,7 +118,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       });
       const body = await res.json();
       if (!res.ok) {
-        setIntakeError(body.error || 'Could not create job.');
+        setIntakeError(body.error || 'Could not add the car.');
         return;
       }
       setIntake(EMPTY_INTAKE);
@@ -127,51 +129,41 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
     }
   };
 
-  const activateJob = async (
-    id: string,
-    patch: { confirmedPlate: string; services: string[]; price: number; status: 'active' }
-  ) => {
+  const patchJob = async (id: string, patch: Record<string, unknown>, failMsg: string) => {
     const res = await fetch(`/api/admin/jobs/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     });
     const body = await res.json();
-    if (!res.ok) return body.error || 'Could not activate job.';
+    if (!res.ok) return body.error || failMsg;
+    await refresh();
+  };
+
+  // New -> Working (done from the Start Work panel with number/work/price)
+  const startWork = async (
+    id: string,
+    patch: { confirmedPlate: string; services: string[]; price: number; status: 'active' }
+  ) => {
+    const err = await patchJob(id, patch, 'Could not start the work.');
+    if (err) return err;
     setExpandedId(null);
-    await refresh();
   };
 
-  const savePhone = async (id: string, phone: string) => {
-    const res = await fetch(`/api/admin/jobs/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    });
-    const body = await res.json();
-    if (!res.ok) return body.error || 'Could not save.';
-    await refresh();
-  };
-
-  const deliverJob = async (id: string) => {
-    const res = await fetch(`/api/admin/jobs/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'delivered' }),
-    });
-    const body = await res.json();
-    if (!res.ok) return body.error || 'Could not mark delivered.';
-    await refresh();
-  };
+  // Working -> Ready
+  const completeWork = (id: string) => patchJob(id, { status: 'completed' }, 'Could not mark work complete.');
+  // Ready -> Delivered
+  const deliverJob = (id: string) => patchJob(id, { status: 'delivered' }, 'Could not deliver.');
+  const savePhone = (id: string, phone: string) => patchJob(id, { phone }, 'Could not save.');
 
   return (
     <div>
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
-          { label: "Today's intake", value: stats.today },
-          { label: 'Awaiting confirm', value: stats.draft },
-          { label: 'Active', value: stats.active },
+          { label: 'Cars today', value: stats.today },
+          { label: 'Working', value: stats.working },
+          { label: 'Ready to deliver', value: stats.ready },
           { label: 'Delivered today', value: stats.deliveredToday },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
@@ -181,13 +173,13 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
         ))}
       </div>
 
-      {/* Intake toggle */}
+      {/* Add car */}
       <div className="mb-4">
         <button
           onClick={() => setIntakeOpen((v) => !v)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all"
         >
-          {intakeOpen ? 'Close' : '+ New job intake'}
+          {intakeOpen ? 'Close' : '+ Add Car'}
         </button>
       </div>
 
@@ -204,7 +196,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Phone (10-digit)</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Phone number</label>
               <input
                 type="tel"
                 value={intake.phone}
@@ -222,9 +214,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Plate, if customer knows it (optional)
-              </label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Car number (if known)</label>
               <input
                 type="text"
                 value={intake.customerPlate}
@@ -233,7 +223,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Ballpark price, ₹ (optional)</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Price, ₹ (optional)</label>
               <input
                 type="number"
                 min={0}
@@ -245,7 +235,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
             </div>
           </div>
 
-          <label className="block text-xs font-medium text-slate-500 mb-2">Services (rough idea — confirm exact scope during processing)</label>
+          <label className="block text-xs font-medium text-slate-500 mb-2">Work needed (you can change it when you start)</label>
           <div className="space-y-3 mb-4">
             {JOB_CATEGORIES.map((cat) => (
               <div key={cat.label}>
@@ -281,7 +271,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
             disabled={intakeSaving}
             className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all disabled:opacity-60"
           >
-            {intakeSaving ? 'Creating…' : 'Create job'}
+            {intakeSaving ? 'Adding…' : 'Add Car'}
           </button>
         </form>
       )}
@@ -289,7 +279,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       {/* Search */}
       <input
         type="text"
-        placeholder="Search by name, phone, plate, job #…"
+        placeholder="Search by name, phone, or car number…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full sm:w-80 rounded-md border border-slate-300 px-3 py-2 text-sm mb-4"
@@ -299,20 +289,20 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-slate-500 border-b border-slate-200">
-              <th className="px-4 py-2.5 font-medium">Job #</th>
+              <th className="px-4 py-2.5 font-medium">No.</th>
               <th className="px-4 py-2.5 font-medium">Customer</th>
               <th className="px-4 py-2.5 font-medium">Car</th>
-              <th className="px-4 py-2.5 font-medium">Plate</th>
-              <th className="px-4 py-2.5 font-medium">Services</th>
+              <th className="px-4 py-2.5 font-medium">Car number</th>
+              <th className="px-4 py-2.5 font-medium">Work</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
-              <th className="px-4 py-2.5 font-medium">Action</th>
+              <th className="px-4 py-2.5 font-medium">Do next</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-sm">
-                  No jobs yet.
+                  No cars yet.
                 </td>
               </tr>
             )}
@@ -341,23 +331,35 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                     {job.status === 'draft' && (
                       <button
                         onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
-                        className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-2.5 py-1.5 rounded-md transition-colors"
+                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md transition-colors"
                       >
-                        {expandedId === job.id ? 'Close' : 'Process'}
+                        {expandedId === job.id ? 'Close' : 'Start Work'}
                       </button>
                     )}
                     {job.status === 'active' && (
-                      <ActiveJobRow
+                      <JobActionRow
                         job={job}
-                        onSave={(phone) => savePhone(job.id, phone)}
-                        onDeliver={() => deliverJob(job.id)}
+                        actionLabel="Work Complete"
+                        tone="blue"
+                        onAction={() => completeWork(job.id)}
+                        onSavePhone={(phone) => savePhone(job.id, phone)}
                       />
                     )}
-                    {job.status === 'delivered' && <span className="text-xs text-slate-400">Closed</span>}
+                    {job.status === 'completed' && (
+                      <JobActionRow
+                        job={job}
+                        actionLabel="Deliver"
+                        tone="green"
+                        confirmMsg={`Deliver ${job.jobNumber} to the customer? This closes it.`}
+                        onAction={() => deliverJob(job.id)}
+                        onSavePhone={(phone) => savePhone(job.id, phone)}
+                      />
+                    )}
+                    {job.status === 'delivered' && <span className="text-xs text-slate-400">Done ✓</span>}
                   </td>
                 </tr>
                 {job.status === 'draft' && expandedId === job.id && (
-                  <JobProcessPanel job={job} onActivate={(patch) => activateJob(job.id, patch)} />
+                  <JobProcessPanel job={job} onStartWork={(patch) => startWork(job.id, patch)} />
                 )}
               </Fragment>
             ))}

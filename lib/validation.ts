@@ -95,7 +95,7 @@ export const jobPatchSchema = z.object({
   confirmedPlate: z.string().trim().max(20).optional().nullable(),
   services: z.array(z.string().trim().min(1)).min(1).optional(),
   price: z.number().int().min(0).max(10_000_000).optional().nullable(),
-  status: z.enum(['draft', 'active', 'delivered']).optional(),
+  status: z.enum(['draft', 'active', 'completed', 'delivered']).optional(),
   phone: z
     .string()
     .trim()

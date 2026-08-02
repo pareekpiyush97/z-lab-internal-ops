@@ -55,7 +55,7 @@ export interface AdminUser {
 
 // ---------------- Shop-floor operations (z-lab-internal-ops console) ----------------
 
-export type JobStatus = 'draft' | 'active' | 'delivered';
+export type JobStatus = 'draft' | 'active' | 'completed' | 'delivered';
 
 export interface Job {
   id: string;

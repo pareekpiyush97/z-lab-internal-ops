@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const STAFF_NAV = [
-  { href: '/admin/jobs', label: 'Jobs' },
+  { href: '/admin/jobs', label: 'Work' },
   { href: '/admin/stock', label: 'Stock & Logistics' },
   { href: '/admin/history', label: 'Service History' },
 ];

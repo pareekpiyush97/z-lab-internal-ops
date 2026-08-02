@@ -4,22 +4,20 @@ import { useState } from 'react';
 import type { Job } from '@/lib/types';
 import { JOB_SERVICES } from '@/lib/job-catalog';
 
+// The "Start Work" panel: confirm the car number, the work to do, and the
+// price, then start the work (moves the car to "Working").
 export default function JobProcessPanel({
   job,
-  onActivate,
+  onStartWork,
 }: {
   job: Job;
-  onActivate: (patch: { confirmedPlate: string; services: string[]; price: number; status: 'active' }) => Promise<string | void>;
+  onStartWork: (patch: { confirmedPlate: string; services: string[]; price: number; status: 'active' }) => Promise<string | void>;
 }) {
   const [plate, setPlate] = useState(job.customerPlate || job.suggestedPlate || '');
   const [price, setPrice] = useState(job.price ? String(job.price) : '');
   const [services, setServices] = useState<Set<string>>(new Set(job.services));
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-
-  const plateHint = job.customerPlate
-    ? '— entered by customer, confirm or adjust'
-    : '— ANPR suggested (simulated), confirm or adjust';
 
   const toggleService = (s: string) => {
     setServices((prev) => {
@@ -30,15 +28,15 @@ export default function JobProcessPanel({
     });
   };
 
-  const activate = async () => {
+  const start = async () => {
     const priceNum = Number(price);
     if (services.size === 0 || !priceNum || priceNum <= 0) {
-      setError('Pick at least one service and enter a valid quoted price.');
+      setError('Pick at least one work item and enter a price.');
       return;
     }
     setError('');
     setSaving(true);
-    const err = await onActivate({
+    const err = await onStartWork({
       confirmedPlate: plate.trim() || job.suggestedPlate || '',
       services: Array.from(services),
       price: priceNum,
@@ -53,9 +51,7 @@ export default function JobProcessPanel({
       <td colSpan={7} className="px-4 py-4 bg-slate-50 border-t border-b border-slate-200">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
-              Vehicle number <span className="text-slate-400 font-normal">{plateHint}</span>
-            </label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Car number</label>
             <div className="flex gap-1.5">
               <input
                 type="text"
@@ -68,14 +64,13 @@ export default function JobProcessPanel({
                 onClick={() => setPlate(job.suggestedPlate || plate)}
                 className="flex-shrink-0 text-xs bg-slate-200 hover:bg-slate-300 px-2.5 py-1.5 rounded-md transition-colors whitespace-nowrap"
               >
-                Scan (camera)
+                Auto-fill
               </button>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Camera scan is simulated for now (see Roadmap: fixed-camera ANPR) — type in the box to enter a plate
-              manually.
+              Type the number, or tap Auto-fill for the camera suggestion.
             </p>
-            <label className="block text-xs font-medium text-slate-500 mb-1 mt-3">Quoted price (₹)</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1 mt-3">Price (₹)</label>
             <input
               type="number"
               min={0}
@@ -87,7 +82,7 @@ export default function JobProcessPanel({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Service(s) — adjust as needed</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Work to do</label>
             <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
               {JOB_SERVICES.map((s) => {
                 const checked = services.has(s);
@@ -110,11 +105,11 @@ export default function JobProcessPanel({
         </div>
         {error && <p className="text-xs text-red-600 mt-3">{error}</p>}
         <button
-          onClick={activate}
+          onClick={start}
           disabled={saving}
-          className="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-sm hover:shadow transition-all disabled:opacity-60"
+          className="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-sm hover:shadow transition-all disabled:opacity-60"
         >
-          {saving ? 'Activating…' : 'Activate job'}
+          {saving ? 'Starting…' : 'Start Work'}
         </button>
       </td>
     </tr>
