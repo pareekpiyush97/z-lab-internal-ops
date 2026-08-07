@@ -16,8 +16,17 @@ export default function JobProcessPanel({
   const [plate, setPlate] = useState(job.customerPlate || job.suggestedPlate || '');
   const [price, setPrice] = useState(job.price ? String(job.price) : '');
   const [services, setServices] = useState<Set<string>>(new Set(job.services));
+  const [customService, setCustomService] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const customServices = Array.from(services).filter((s) => !JOB_SERVICES.includes(s));
+  const addCustomService = () => {
+    const v = customService.trim();
+    if (!v) return;
+    setServices((prev) => new Set(prev).add(v));
+    setCustomService('');
+  };
 
   const toggleService = (s: string) => {
     setServices((prev) => {
@@ -101,6 +110,41 @@ export default function JobProcessPanel({
                 );
               })}
             </div>
+            {/* Add more (custom work / details) */}
+            <div className="mt-2 flex gap-1.5">
+              <input
+                type="text"
+                value={customService}
+                onChange={(e) => setCustomService(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomService();
+                  }
+                }}
+                placeholder="Add more…"
+                className="flex-1 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-xs"
+              />
+              <button
+                type="button"
+                onClick={addCustomService}
+                className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-2.5 py-1.5 rounded-md transition-colors"
+              >
+                Add
+              </button>
+            </div>
+            {customServices.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {customServices.map((s) => (
+                  <span key={s} className="inline-flex items-center gap-1 text-xs bg-indigo-600 text-white rounded-lg px-2.5 py-1">
+                    {s}
+                    <button type="button" onClick={() => toggleService(s)} className="hover:text-indigo-200 font-bold">
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         {error && <p className="text-xs text-red-600 mt-3">{error}</p>}

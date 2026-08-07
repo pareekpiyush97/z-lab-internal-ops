@@ -25,7 +25,7 @@ export const JOB_CATEGORIES: JobCategory[] = [
       'Graphene Coating – Triple Layer',
     ],
   },
-  { label: 'Protection', icon: 'layers', services: ['PPF'] },
+  { label: 'Protection', icon: 'layers', services: ['PPF 5 years', 'PPF 7 years', 'PPF 10 years', 'PPF 15 years'] },
   { label: 'Detailing', icon: 'sparkle', services: ['Car Detailing', 'Interior Detailing', 'Rubbing & Polishing'] },
   { label: 'Customization', icon: 'sliders', services: ['Custom Interior', 'Bodykits', 'Paint Job'] },
 ];

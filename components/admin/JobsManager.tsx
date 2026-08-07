@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo, useState } from 'react';
 import type { Job } from '@/lib/types';
-import { JOB_CATEGORIES } from '@/lib/job-catalog';
+import { JOB_CATEGORIES, JOB_SERVICES } from '@/lib/job-catalog';
 import JobIcon from './JobIcon';
 import JobProcessPanel from './JobProcessPanel';
 import JobActionRow from './JobActionRow';
@@ -52,6 +52,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const [intake, setIntake] = useState<IntakeForm>(EMPTY_INTAKE);
   const [intakeError, setIntakeError] = useState('');
   const [intakeSaving, setIntakeSaving] = useState(false);
+  const [customService, setCustomService] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const refresh = async () => {
@@ -86,6 +87,17 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       return { ...prev, services: next };
     });
   };
+
+  // "Add more": lets staff type any work item / detail not in the fixed
+  // list (e.g. a specific PPF option, a note). It just gets added to the
+  // selected work items.
+  const addCustomService = () => {
+    const v = customService.trim();
+    if (!v) return;
+    setIntake((prev) => ({ ...prev, services: new Set(prev.services).add(v) }));
+    setCustomService('');
+  };
+  const customIntakeServices = Array.from(intake.services).filter((s) => !JOB_SERVICES.includes(s));
 
   const submitIntake = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,6 +275,45 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Add more (custom work / details) */}
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">Add more (anything not in the list)</label>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={customService}
+                onChange={(e) => setCustomService(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomService();
+                  }
+                }}
+                placeholder="e.g. PPF full body, or any note"
+                className="flex-1 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
+              />
+              <button
+                type="button"
+                onClick={addCustomService}
+                className="text-sm bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-md transition-colors"
+              >
+                Add
+              </button>
+            </div>
+            {customIntakeServices.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {customIntakeServices.map((s) => (
+                  <span key={s} className="inline-flex items-center gap-1 text-xs bg-indigo-600 text-white rounded-lg px-2.5 py-1">
+                    {s}
+                    <button type="button" onClick={() => toggleIntakeService(s)} className="hover:text-indigo-200 font-bold">
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {intakeError && <p className="text-xs text-red-600 mb-3">{intakeError}</p>}
