@@ -166,7 +166,8 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const completeWork = (id: string) => patchJob(id, { status: 'completed' }, 'Could not mark work complete.');
   // Ready -> Delivered
   const deliverJob = (id: string) => patchJob(id, { status: 'delivered' }, 'Could not deliver.');
-  const savePhone = (id: string, phone: string) => patchJob(id, { phone }, 'Could not save.');
+  const saveEdits = (id: string, phone: string, price: number | null) =>
+    patchJob(id, { phone, price }, 'Could not save.');
 
   return (
     <div>
@@ -393,7 +394,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                         actionLabel="Work Complete"
                         tone="blue"
                         onAction={() => completeWork(job.id)}
-                        onSavePhone={(phone) => savePhone(job.id, phone)}
+                        onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
                       />
                     )}
                     {job.status === 'completed' && (
@@ -403,10 +404,18 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                         tone="green"
                         confirmMsg={`Deliver ${job.jobNumber} to the customer? This closes it.`}
                         onAction={() => deliverJob(job.id)}
-                        onSavePhone={(phone) => savePhone(job.id, phone)}
+                        onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
                       />
                     )}
-                    {job.status === 'delivered' && <span className="text-xs text-slate-400">Done ✓</span>}
+                    {job.status === 'delivered' && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[11px] text-emerald-600 font-medium">Done ✓ — edit price if wrong</span>
+                        <JobActionRow
+                          job={job}
+                          onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
+                        />
+                      </div>
+                    )}
                   </td>
                 </tr>
                 {job.status === 'draft' && expandedId === job.id && (
