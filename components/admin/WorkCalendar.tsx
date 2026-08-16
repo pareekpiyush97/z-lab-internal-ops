@@ -125,60 +125,48 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
       {/* Details (right — fills the rest of the screen) */}
       <div className="min-w-0">
         {/* Selected day */}
-        <h3 className="text-sm font-semibold text-paper mb-2">
-          {selectedLabel} — {selectedJobs.length} car{selectedJobs.length === 1 ? '' : 's'}
+        <h3 className="text-base font-semibold text-paper mb-3">
+          {selectedLabel} <span className="text-paperdim font-normal">· {selectedJobs.length} car{selectedJobs.length === 1 ? '' : 's'}</span>
         </h3>
         {selectedJobs.length === 0 ? (
-          <p className="text-sm text-slate-400 rounded-xl border border-slate-200 bg-white px-4 py-5 text-center">No work on this day.</p>
+          <p className="text-sm text-paperdim">No work on this day.</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-slate-500 border-b border-slate-200">
-                  <th className="px-3 py-2 font-medium">No.</th>
-                  <th className="px-3 py-2 font-medium">Customer</th>
-                  <th className="px-3 py-2 font-medium">Car number</th>
-                  <th className="px-3 py-2 font-medium">Work</th>
-                  <th className="px-3 py-2 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedJobs.map((j) => (
-                  <tr key={j.id} className="border-b border-slate-100 last:border-0">
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600 whitespace-nowrap">{j.jobNumber}</td>
-                    <td className="px-3 py-2">
-                      <p className="font-medium text-slate-800">{j.customerName}</p>
-                      <p className="text-xs text-slate-500">{j.phone || '—'}</p>
-                    </td>
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{vehicleNumber(j)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 max-w-[220px]">{j.services.join(', ') || '—'}</td>
-                    <td className="px-3 py-2">
-                      <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLES[j.status]}`}>
-                        {STATUS_LABELS[j.status]}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="rounded-xl bg-white divide-y divide-slate-100 overflow-hidden">
+            {selectedJobs.map((j) => (
+              <div key={j.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-900 truncate">
+                    {j.customerName}
+                    <span className="ml-2 font-mono text-[11px] text-slate-400">{j.jobNumber}</span>
+                  </p>
+                  <p className="text-xs text-slate-500 truncate">
+                    <span className="font-mono text-slate-600">{vehicleNumber(j)}</span>
+                    {j.services.length > 0 && <span> · {j.services.join(', ')}</span>}
+                  </p>
+                </div>
+                <span className={`shrink-0 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLES[j.status]}`}>
+                  {STATUS_LABELS[j.status]}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Whole-month breakdown with vehicle numbers */}
-        <h3 className="text-sm font-semibold text-paper mt-6 mb-2">
-          {MONTHS[cursor.m]} {cursor.y} — {monthTotal} car{monthTotal === 1 ? '' : 's'} this month
+        <h3 className="text-base font-semibold text-paper mt-8 mb-3">
+          {MONTHS[cursor.m]} {cursor.y} <span className="text-paperdim font-normal">· {monthTotal} car{monthTotal === 1 ? '' : 's'} this month</span>
         </h3>
         {monthDays.length === 0 ? (
-          <p className="text-sm text-slate-400 rounded-xl border border-slate-200 bg-white px-4 py-5 text-center">No work this month.</p>
+          <p className="text-sm text-paperdim">No work this month.</p>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100">
+          <div className="rounded-xl bg-white divide-y divide-slate-100 overflow-hidden">
             {monthDays.map(({ day, jobs }) => (
-              <div key={day} className="px-3 py-2.5 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
-                <div className="text-xs font-medium text-slate-800 sm:w-32 shrink-0">
+              <div key={day} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4">
+                <div className="text-sm font-semibold text-slate-800 sm:w-28 shrink-0">
                   {day} {MONTHS[cursor.m]}
-                  <span className="text-slate-500 font-normal"> · {jobs.length} car{jobs.length === 1 ? '' : 's'}</span>
+                  <span className="text-slate-400 font-normal"> · {jobs.length}</span>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {jobs.map((j) => (
                     <span key={j.id} className="font-mono text-[11px] bg-slate-100 text-slate-700 rounded px-1.5 py-0.5">
                       {vehicleNumber(j)}
