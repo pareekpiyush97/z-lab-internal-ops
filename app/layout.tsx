@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   title: 'Z Lab Design — Luxury Car Detailing Studio, Indirapuram',
   description:
     "World-class PPF, Ceramic Coating, and Graphene finishes for the world's most prestigious vehicles. Indirapuram, Ghaziabad.",
+  // Internal company software -- do not list on Google / any search engine.
+  robots: { index: false, follow: false, nocache: true },
 };
 
 export const viewport: Viewport = {
