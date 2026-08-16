@@ -305,6 +305,11 @@ export async function updateLead(
   return row ? mapLead(row) : null;
 }
 
+export async function deleteLead(leadId: string): Promise<boolean> {
+  const rows = await query('delete from leads where id = $1 returning id', [leadId]);
+  return rows.length > 0;
+}
+
 // ---------------- Admin users ----------------
 
 export async function getAdminByUsername(username: string): Promise<AdminUser | null> {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadPatchSchema } from '@/lib/validation';
-import { updateLead } from '@/lib/repo';
+import { updateLead, deleteLead } from '@/lib/repo';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,4 +21,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!lead) return NextResponse.json({ error: 'Lead not found.' }, { status: 404 });
 
   return NextResponse.json({ lead });
+}
+
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ok = await deleteLead(id);
+  if (!ok) return NextResponse.json({ error: 'Lead not found.' }, { status: 404 });
+  return NextResponse.json({ ok: true });
 }

@@ -55,6 +55,12 @@ export const galleryItemSchema = z.object({
 
 export const galleryItemPatchSchema = galleryItemSchema.partial();
 
+export const leadCreateSchema = z.object({
+  name: z.string().trim().min(1, 'Enter a name').max(120),
+  phone: z.string().trim().max(20).optional(),
+  serviceKey: z.string().trim().max(120).optional().nullable(),
+});
+
 export const leadPatchSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   phone: z.string().trim().max(20).optional(),

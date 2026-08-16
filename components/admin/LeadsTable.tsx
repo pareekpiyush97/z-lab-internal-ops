@@ -13,6 +13,9 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({ name: '', phone: '', serviceKey: '' });
+  const [adding, setAdding] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', phone: '', serviceKey: '' });
+  const [addSaving, setAddSaving] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -44,6 +47,19 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     setEditForm({ name: lead.name, phone: lead.phone, serviceKey: lead.serviceKey || '' });
   };
   const cancelEdit = () => setEditingId(null);
+  const deleteLeadRow = async (lead: Lead) => {
+    if (!confirm(`Delete lead \"${lead.name}\"? This cannot be undone.`)) return;
+    setSavingId(lead.id);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+    } catch {
+      alert('Could not delete the lead.');
+    } finally {
+      setSavingId(null);
+    }
+  };
   const saveEdit = async (id: string) => {
     const patch = {
       name: editForm.name.trim(),
@@ -72,25 +88,78 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     }
   };
 
+  const addLead = async () => {
+    const payload = { name: addForm.name.trim(), phone: addForm.phone.trim(), serviceKey: addForm.serviceKey.trim() || null };
+    if (!payload.name) {
+      alert('Enter a name.');
+      return;
+    }
+    setAddSaving(true);
+    try {
+      const res = await fetch('/api/admin/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || '');
+      setLeads((prev) => [data.lead as Lead, ...prev]);
+      setAddForm({ name: '', phone: '', serviceKey: '' });
+      setAdding(false);
+    } catch {
+      alert('Could not add the lead.');
+    } finally {
+      setAddSaving(false);
+    }
+  };
+
+  const inputBig =
+    'bg-panel2 border border-line rounded-lg px-3 py-2 text-sm text-paper placeholder-paperdim focus:outline-none focus:border-accent';
   const inputCls =
     'w-full bg-panel2 border border-line rounded px-2 py-1 text-xs text-paper placeholder-paperdim focus:outline-none focus:border-accent';
 
   return (
     <div>
-      {/* Search */}
-      <div className="mb-4">
+      {/* Search + Add */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search leads by name, phone or service…"
-          className="w-full sm:w-80 bg-panel2 border border-line rounded-lg px-3 py-2 text-sm text-paper placeholder-paperdim focus:outline-none focus:border-accent"
+          className="flex-1 min-w-[220px] sm:flex-none sm:w-80 bg-panel2 border border-line rounded-lg px-3 py-2 text-sm text-paper placeholder-paperdim focus:outline-none focus:border-accent"
         />
         {search.trim() !== '' && (
-          <span className="ml-3 text-xs text-paperdim">
+          <span className="text-xs text-paperdim">
             {filtered.length} of {leads.length}
           </span>
         )}
+        <button
+          onClick={() => setAdding((v) => !v)}
+          className="ml-auto text-sm font-semibold bg-accent hover:brightness-110 text-ink px-4 py-2 rounded-lg transition"
+        >
+          {adding ? 'Close' : '+ Add lead'}
+        </button>
       </div>
+
+      {adding && (
+        <div className="mb-4 rounded-lg border border-line bg-panel p-4 grid gap-3 sm:grid-cols-4">
+          <input placeholder="Name" value={addForm.name} onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))} className={inputBig} />
+          <input placeholder="Phone" value={addForm.phone} onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))} className={inputBig} />
+          <input placeholder="Service (optional)" value={addForm.serviceKey} onChange={(e) => setAddForm((f) => ({ ...f, serviceKey: e.target.value }))} className={inputBig} />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={addLead}
+              disabled={addSaving}
+              className="text-sm font-semibold bg-accent hover:brightness-110 text-ink px-4 py-2 rounded-lg disabled:opacity-60"
+            >
+              {addSaving ? 'Saving…' : 'Save lead'}
+            </button>
+            <button onClick={() => setAdding(false)} className="text-sm text-paperdim hover:text-paper">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-lg border border-line overflow-x-auto">
         <table className="w-full text-sm">
@@ -171,12 +240,21 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                         </button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => openEdit(lead)}
-                        className="text-xs font-medium border border-line hover:border-paperdim text-paper rounded-md px-3 py-1 transition-colors"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEdit(lead)}
+                          className="text-xs font-medium border border-line hover:border-paperdim text-paper rounded-md px-3 py-1 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteLeadRow(lead)}
+                          disabled={savingId === lead.id}
+                          className="text-xs font-medium text-red-400 hover:text-red-300 disabled:opacity-60"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
