@@ -7,22 +7,22 @@ import JobIcon from './JobIcon';
 import JobProcessPanel from './JobProcessPanel';
 import JobActionRow from './JobActionRow';
 
+type CarEntry = { carModel: string; customerPlate: string };
+
 type IntakeForm = {
   customerName: string;
   phone: string;
-  carModel: string;
-  customerPlate: string;
   price: string;
   services: Set<string>;
+  cars: CarEntry[];
 };
 
 const EMPTY_INTAKE: IntakeForm = {
   customerName: '',
   phone: '',
-  carModel: '',
-  customerPlate: '',
   price: '',
   services: new Set(),
+  cars: [{ carModel: '', customerPlate: '' }],
 };
 
 function isToday(iso: string): boolean {
@@ -99,14 +99,18 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   };
   const customIntakeServices = Array.from(intake.services).filter((s) => !JOB_SERVICES.includes(s));
 
+  // Car list handlers (a customer can bring several cars at once).
+  const addCar = () =>
+    setIntake((p) => ({ ...p, cars: [...p.cars, { carModel: '', customerPlate: '' }] }));
+  const removeCar = (idx: number) =>
+    setIntake((p) => ({ ...p, cars: p.cars.filter((_, i) => i !== idx) }));
+  const updateCar = (idx: number, field: 'carModel' | 'customerPlate', value: string) =>
+    setIntake((p) => ({ ...p, cars: p.cars.map((car, i) => (i === idx ? { ...car, [field]: value } : car)) }));
+
   const submitIntake = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!intake.customerName.trim()) {
       setIntakeError('Customer name is needed.');
-      return;
-    }
-    if (!/^[0-9]{10}$/.test(intake.phone.trim())) {
-      setIntakeError('Enter a valid 10-digit phone number.');
       return;
     }
     if (intake.services.size === 0) {
@@ -116,24 +120,30 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
     setIntakeError('');
     setIntakeSaving(true);
     try {
-      const res = await fetch('/api/admin/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: intake.customerName.trim(),
-          phone: intake.phone.trim(),
-          carModel: intake.carModel.trim() || undefined,
-          customerPlate: intake.customerPlate.trim() || undefined,
-          services: Array.from(intake.services),
-          price: intake.price ? Number(intake.price) : undefined,
-        }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setIntakeError(body.error || 'Could not add the car.');
-        return;
+      const base = {
+        customerName: intake.customerName.trim(),
+        phone: intake.phone.trim() || undefined,
+        services: Array.from(intake.services),
+        price: intake.price ? Number(intake.price) : undefined,
+      };
+      // One job per car, all under the same customer.
+      for (const car of intake.cars) {
+        const res = await fetch('/api/admin/jobs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...base,
+            carModel: car.carModel.trim() || undefined,
+            customerPlate: car.customerPlate.trim() || undefined,
+          }),
+        });
+        const body = await res.json();
+        if (!res.ok) {
+          setIntakeError(body.error || 'Could not add the car.');
+          return;
+        }
       }
-      setIntake(EMPTY_INTAKE);
+      setIntake({ ...EMPTY_INTAKE, services: new Set(), cars: [{ carModel: '', customerPlate: '' }] });
       setIntakeOpen(false);
       await refresh();
     } finally {
@@ -209,30 +219,12 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Phone number</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Phone number (optional)</label>
               <input
                 type="tel"
                 value={intake.phone}
                 onChange={(e) => setIntake((p) => ({ ...p, phone: e.target.value }))}
                 className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Car model (optional)</label>
-              <input
-                type="text"
-                value={intake.carModel}
-                onChange={(e) => setIntake((p) => ({ ...p, carModel: e.target.value }))}
-                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Car number (if known)</label>
-              <input
-                type="text"
-                value={intake.customerPlate}
-                onChange={(e) => setIntake((p) => ({ ...p, customerPlate: e.target.value.toUpperCase() }))}
-                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm uppercase"
               />
             </div>
             <div>
@@ -246,6 +238,49 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                 className="w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
               />
             </div>
+          </div>
+
+          {/* Cars for this customer — add more than one at once */}
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">
+              Cars for this customer <span className="text-slate-400 font-normal">— add more if the same customer brought several</span>
+            </label>
+            <div className="space-y-2">
+              {intake.cars.map((car, idx) => (
+                <div key={idx} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                  <input
+                    type="text"
+                    value={car.customerPlate}
+                    onChange={(e) => updateCar(idx, 'customerPlate', e.target.value.toUpperCase())}
+                    placeholder={`Car ${idx + 1} number (if known)`}
+                    className="flex-1 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm uppercase"
+                  />
+                  <input
+                    type="text"
+                    value={car.carModel}
+                    onChange={(e) => updateCar(idx, 'carModel', e.target.value)}
+                    placeholder="Car model (optional)"
+                    className="flex-1 rounded-md border border-slate-300 bg-white text-slate-900 placeholder-slate-400 px-2 py-1.5 text-sm"
+                  />
+                  {intake.cars.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeCar(idx)}
+                      className="text-xs text-red-600 hover:text-red-700 px-2 py-1.5 shrink-0"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addCar}
+              className="mt-2 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-md transition-colors"
+            >
+              + Add another car
+            </button>
           </div>
 
           <label className="block text-xs font-medium text-slate-500 mb-2">Work needed (you can change it when you start)</label>
@@ -323,7 +358,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
             disabled={intakeSaving}
             className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all disabled:opacity-60"
           >
-            {intakeSaving ? 'Adding…' : 'Add Car'}
+            {intakeSaving ? 'Adding…' : intake.cars.length > 1 ? `Add ${intake.cars.length} Cars` : 'Add Car'}
           </button>
         </form>
       )}

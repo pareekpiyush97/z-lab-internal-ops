@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { StockItem, StockPurchase } from '@/lib/types';
 import { STOCK_CATEGORIES } from '@/lib/job-catalog';
 
@@ -302,7 +302,7 @@ export default function StockManager({
             <tr className="text-left text-xs text-slate-500 border-b border-slate-200">
               <th className="px-4 py-2.5 font-medium">Item</th>
               <th className="px-4 py-2.5 font-medium">Category</th>
-              <th className="px-4 py-2.5 font-medium">On hand</th>
+              <th className="px-4 py-2.5 font-medium">Available</th>
               <th className="px-4 py-2.5 font-medium">Adjust</th>
               <th className="px-4 py-2.5 font-medium"></th>
             </tr>
@@ -332,22 +332,11 @@ export default function StockManager({
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => adjust(item.id, -1)}
-                        disabled={busyId === item.id}
-                        className="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors disabled:opacity-60"
-                      >
-                        −
-                      </button>
-                      <button
-                        onClick={() => adjust(item.id, 1)}
-                        disabled={busyId === item.id}
-                        className="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors disabled:opacity-60"
-                      >
-                        +
-                      </button>
-                    </div>
+                    <StockQtyControl
+                      item={item}
+                      busy={busyId === item.id}
+                      onAdjust={(delta) => adjust(item.id, delta)}
+                    />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -401,6 +390,69 @@ export default function StockManager({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+
+// Quantity control: (−) [ type exact available ] (+). Typing a number and
+// pressing Enter (or leaving the box) sets the stock to that exact amount.
+function StockQtyControl({
+  item,
+  busy,
+  onAdjust,
+}: {
+  item: StockItem;
+  busy: boolean;
+  onAdjust: (delta: number) => void;
+}) {
+  const [val, setVal] = useState(String(item.qty));
+  useEffect(() => {
+    setVal(String(item.qty));
+  }, [item.qty]);
+
+  const commit = () => {
+    const target = Number(val);
+    if (!Number.isFinite(target) || target < 0) {
+      setVal(String(item.qty));
+      return;
+    }
+    const delta = target - item.qty;
+    if (delta !== 0) onAdjust(delta);
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => onAdjust(-1)}
+        disabled={busy}
+        className="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors disabled:opacity-60"
+      >
+        −
+      </button>
+      <input
+        type="number"
+        min={0}
+        value={val}
+        disabled={busy}
+        title="Type an exact amount"
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        onBlur={commit}
+        className="w-16 text-center rounded-md border border-slate-300 bg-white text-slate-900 py-1 text-sm"
+      />
+      <button
+        onClick={() => onAdjust(1)}
+        disabled={busy}
+        className="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm transition-colors disabled:opacity-60"
+      >
+        +
+      </button>
     </div>
   );
 }

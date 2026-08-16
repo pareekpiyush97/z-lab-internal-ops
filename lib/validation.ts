@@ -84,7 +84,7 @@ export const plateSightingSchema = z.object({
 
 export const jobIntakeSchema = z.object({
   customerName: z.string().trim().min(1, 'Customer name is required').max(120),
-  phone: z.string().trim().regex(/^[0-9]{10}$/, 'Enter a valid 10-digit mobile number'),
+  phone: z.string().trim().max(20).optional(),
   carModel: z.string().trim().max(120).optional().nullable(),
   customerPlate: z.string().trim().max(20).optional().nullable(),
   services: z.array(z.string().trim().min(1)).min(1, 'Select at least one service'),

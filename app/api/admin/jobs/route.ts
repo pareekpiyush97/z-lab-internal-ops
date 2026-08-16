@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
   const job = await createJob({
     customerName: parsed.data.customerName,
-    phone: parsed.data.phone,
+    phone: parsed.data.phone?.trim() || '',
     carModel: parsed.data.carModel ?? null,
     customerPlate: parsed.data.customerPlate ? parsed.data.customerPlate.toUpperCase() : null,
     suggestedPlate: fakeSuggestedPlate(),
