@@ -5,7 +5,6 @@ import type { Job } from '@/lib/types';
 import { JOB_CATEGORIES, JOB_SERVICES } from '@/lib/job-catalog';
 import JobIcon from './JobIcon';
 import JobProcessPanel from './JobProcessPanel';
-import JobActionRow from './JobActionRow';
 
 type CarEntry = { carModel: string; customerPlate: string };
 
@@ -54,6 +53,8 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const [intakeSaving, setIntakeSaving] = useState(false);
   const [customService, setCustomService] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ phone: '', price: '' });
 
   const refresh = async () => {
     const res = await fetch('/api/admin/jobs');
@@ -178,6 +179,17 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const deliverJob = (id: string) => patchJob(id, { status: 'delivered' }, 'Could not deliver.');
   const saveEdits = (id: string, phone: string, price: number | null) =>
     patchJob(id, { phone, price }, 'Could not save.');
+
+  const openEdit = (job: Job) => {
+    setEditingId(job.id);
+    setEditForm({ phone: job.phone || '', price: job.price != null ? String(job.price) : '' });
+  };
+  const cancelEdit = () => setEditingId(null);
+  const submitEdit = async (job: Job) => {
+    const price = editForm.price.trim() === '' ? null : Number(editForm.price);
+    await saveEdits(job.id, editForm.phone.trim(), price);
+    setEditingId(null);
+  };
 
   const deleteJobEntry = async (job: Job) => {
     if (!confirm(`Delete ${job.jobNumber} (${job.customerName})? This permanently removes this car.`)) return;
@@ -426,49 +438,91 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-col items-start gap-1.5">
-                    {job.status === 'draft' && (
-                      <button
-                        onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
-                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md transition-colors"
-                      >
-                        {expandedId === job.id ? 'Close' : 'Start Work'}
-                      </button>
-                    )}
-                    {job.status === 'active' && (
-                      <JobActionRow
-                        job={job}
-                        actionLabel="Work Complete"
-                        tone="blue"
-                        onAction={() => completeWork(job.id)}
-                        onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
-                      />
-                    )}
-                    {job.status === 'completed' && (
-                      <JobActionRow
-                        job={job}
-                        actionLabel="Deliver"
-                        tone="green"
-                        confirmMsg={`Deliver ${job.jobNumber} to the customer? This closes it.`}
-                        onAction={() => deliverJob(job.id)}
-                        onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
-                      />
-                    )}
-                    {job.status === 'delivered' && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[11px] text-emerald-600 font-medium">Done ✓ — edit price if wrong</span>
-                        <JobActionRow
-                          job={job}
-                          onSaveEdits={(phone, price) => saveEdits(job.id, phone, price)}
-                        />
+                    <div className="flex flex-col items-start gap-2">
+                      {job.status === 'draft' && (
+                        <button
+                          onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
+                          className="text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                        >
+                          {expandedId === job.id ? 'Close' : 'Start Work'}
+                        </button>
+                      )}
+                      {job.status === 'active' && (
+                        <button
+                          onClick={() => completeWork(job.id)}
+                          className="text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                        >
+                          Work Complete
+                        </button>
+                      )}
+                      {job.status === 'completed' && (
+                        <button
+                          onClick={() => { if (confirm(`Deliver ${job.jobNumber} to the customer? This closes it.`)) deliverJob(job.id); }}
+                          className="text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                        >
+                          Deliver
+                        </button>
+                      )}
+                      {job.status === 'delivered' && (
+                        <span className="text-[11px] text-emerald-600 font-medium">Done ✓</span>
+                      )}
+
+                      {/* Simple secondary actions: Edit and Delete */}
+                      <div className="flex items-center gap-3 text-xs">
+                        <button
+                          onClick={() => (editingId === job.id ? cancelEdit() : openEdit(job))}
+                          className="inline-flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors"
+                        >
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteJobEntry(job)}
+                          className="inline-flex items-center gap-1 text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
+                          Delete
+                        </button>
                       </div>
-                    )}
-                      <button
-                        onClick={() => deleteJobEntry(job)}
-                        className="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-md transition-colors self-start"
-                      >
-                        Delete
-                      </button>
+
+                      {/* On-demand edit panel (phone + price) */}
+                      {editingId === job.id && (
+                        <div className="mt-1 w-[220px] max-w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 flex flex-col gap-2">
+                          <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Phone</label>
+                            <input
+                              value={editForm.phone}
+                              onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+                              placeholder="Phone number"
+                              className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Price (₹)</label>
+                            <input
+                              value={editForm.price}
+                              onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
+                              inputMode="numeric"
+                              placeholder="0"
+                              className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <button
+                              onClick={() => submitEdit(job)}
+                              className="text-xs font-medium bg-slate-800 hover:bg-slate-900 text-white px-3 py-1 rounded-md transition-colors"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
