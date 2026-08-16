@@ -83,8 +83,8 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
         <div className="flex items-center justify-between mb-2">
           <button onClick={prevMonth} className="w-7 h-7 rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm">‹</button>
           <div className="text-center">
-            <div className="text-sm font-semibold text-slate-800">{MONTHS[cursor.m]} {cursor.y}</div>
-            <div className="text-[11px] text-slate-500">{monthTotal} car{monthTotal === 1 ? '' : 's'}</div>
+            <div className="text-sm font-semibold text-paper">{MONTHS[cursor.m]} {cursor.y}</div>
+            <div className="text-[11px] text-paperdim">{monthTotal} car{monthTotal === 1 ? '' : 's'}</div>
           </div>
           <button onClick={nextMonth} className="w-7 h-7 rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm">›</button>
         </div>
@@ -125,7 +125,7 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
       {/* Details (right — fills the rest of the screen) */}
       <div className="min-w-0">
         {/* Selected day */}
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">
+        <h3 className="text-sm font-semibold text-paper mb-2">
           {selectedLabel} — {selectedJobs.length} car{selectedJobs.length === 1 ? '' : 's'}
         </h3>
         {selectedJobs.length === 0 ? (
@@ -165,7 +165,7 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
         )}
 
         {/* Whole-month breakdown with vehicle numbers */}
-        <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">
+        <h3 className="text-sm font-semibold text-paper mt-6 mb-2">
           {MONTHS[cursor.m]} {cursor.y} — {monthTotal} car{monthTotal === 1 ? '' : 's'} this month
         </h3>
         {monthDays.length === 0 ? (
