@@ -442,6 +442,9 @@ export async function createJob(input: {
 export async function updateJob(
   jobId: string,
   patch: Partial<{
+    customerName: string;
+    carModel: string | null;
+    customerPlate: string | null;
     confirmedPlate: string | null;
     services: string[];
     price: number | null;
@@ -454,10 +457,21 @@ export async function updateJob(
   const current = mapJob(existing);
   const merged = { ...current, ...patch };
   const row = await queryOne(
-    `update jobs set confirmed_plate = $1, services = $2::jsonb, price = $3, status = $4, phone = $5
-     where id = $6
+    `update jobs set customer_name = $1, car_model = $2, customer_plate = $3, confirmed_plate = $4,
+       services = $5::jsonb, price = $6, status = $7, phone = $8
+     where id = $9
      returning *`,
-    [merged.confirmedPlate, JSON.stringify(merged.services), merged.price, merged.status, merged.phone, jobId]
+    [
+      merged.customerName,
+      merged.carModel,
+      merged.customerPlate,
+      merged.confirmedPlate,
+      JSON.stringify(merged.services),
+      merged.price,
+      merged.status,
+      merged.phone,
+      jobId,
+    ]
   );
   return row ? mapJob(row) : null;
 }

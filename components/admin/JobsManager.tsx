@@ -54,7 +54,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const [customService, setCustomService] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ phone: '', price: '' });
+  const [editForm, setEditForm] = useState({ customerName: '', phone: '', carModel: '', carNumber: '', price: '' });
 
   const refresh = async () => {
     const res = await fetch('/api/admin/jobs');
@@ -177,17 +177,34 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const completeWork = (id: string) => patchJob(id, { status: 'completed' }, 'Could not mark work complete.');
   // Ready -> Delivered
   const deliverJob = (id: string) => patchJob(id, { status: 'delivered' }, 'Could not deliver.');
-  const saveEdits = (id: string, phone: string, price: number | null) =>
-    patchJob(id, { phone, price }, 'Could not save.');
-
   const openEdit = (job: Job) => {
     setEditingId(job.id);
-    setEditForm({ phone: job.phone || '', price: job.price != null ? String(job.price) : '' });
+    setEditForm({
+      customerName: job.customerName || '',
+      phone: job.phone || '',
+      carModel: job.carModel || '',
+      carNumber: job.confirmedPlate || job.customerPlate || job.suggestedPlate || '',
+      price: job.price != null ? String(job.price) : '',
+    });
   };
   const cancelEdit = () => setEditingId(null);
   const submitEdit = async (job: Job) => {
-    const price = editForm.price.trim() === '' ? null : Number(editForm.price);
-    await saveEdits(job.id, editForm.phone.trim(), price);
+    if (!editForm.customerName.trim()) {
+      alert('Customer name cannot be empty.');
+      return;
+    }
+    const patch = {
+      customerName: editForm.customerName.trim(),
+      phone: editForm.phone.trim(),
+      carModel: editForm.carModel.trim() || null,
+      confirmedPlate: editForm.carNumber.trim() || null,
+      price: editForm.price.trim() === '' ? null : Number(editForm.price),
+    };
+    const err = await patchJob(job.id, patch, 'Could not save.');
+    if (err) {
+      alert(err);
+      return;
+    }
     setEditingId(null);
   };
 
@@ -487,15 +504,42 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                         </button>
                       </div>
 
-                      {/* On-demand edit panel (phone + price) */}
+                      {/* On-demand edit panel (customer + car + phone + price) */}
                       {editingId === job.id && (
-                        <div className="mt-1 w-[220px] max-w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 flex flex-col gap-2">
+                        <div className="mt-1 w-[240px] max-w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 flex flex-col gap-2">
+                          <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Customer name</label>
+                            <input
+                              value={editForm.customerName}
+                              onChange={(e) => setEditForm((f) => ({ ...f, customerName: e.target.value }))}
+                              placeholder="Customer name"
+                              className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
                           <div>
                             <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Phone</label>
                             <input
                               value={editForm.phone}
                               onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
                               placeholder="Phone number"
+                              className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Car model</label>
+                            <input
+                              value={editForm.carModel}
+                              onChange={(e) => setEditForm((f) => ({ ...f, carModel: e.target.value }))}
+                              placeholder="e.g. BMW X7"
+                              className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Car number</label>
+                            <input
+                              value={editForm.carNumber}
+                              onChange={(e) => setEditForm((f) => ({ ...f, carNumber: e.target.value }))}
+                              placeholder="e.g. UP14 AB1234"
                               className="w-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 rounded px-2 py-1 text-xs"
                             />
                           </div>

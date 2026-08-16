@@ -102,15 +102,14 @@ export const jobIntakeSchema = z.object({
 });
 
 export const jobPatchSchema = z.object({
+  customerName: z.string().trim().min(1).max(120).optional(),
+  carModel: z.string().trim().max(120).optional().nullable(),
+  customerPlate: z.string().trim().max(20).optional().nullable(),
   confirmedPlate: z.string().trim().max(20).optional().nullable(),
   services: z.array(z.string().trim().min(1)).min(1).optional(),
   price: z.number().int().min(0).max(10_000_000).optional().nullable(),
   status: z.enum(['draft', 'active', 'completed', 'delivered']).optional(),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^[0-9]{10}$/)
-    .optional(),
+  phone: z.string().trim().max(20).optional(),
 });
 
 export const stockItemCreateSchema = z.object({
