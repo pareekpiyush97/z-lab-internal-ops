@@ -6,7 +6,6 @@ import { useState } from 'react';
 
 const STAFF_NAV = [
   { href: '/admin/jobs', label: 'Work' },
-  { href: '/admin/calendar', label: 'Calendar' },
   { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/stock', label: 'Stock & Logistics' },
   { href: '/admin/history', label: 'Service History' },
