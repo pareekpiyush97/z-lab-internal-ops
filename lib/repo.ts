@@ -470,6 +470,11 @@ export async function searchJobsByPlate(plateQuery: string): Promise<Job[]> {
   return rows.map(mapJob);
 }
 
+export async function deleteJob(jobId: string): Promise<boolean> {
+  const rows = await query('delete from jobs where id = $1 returning id', [jobId]);
+  return rows.length > 0;
+}
+
 // ---------------- Stock & Logistics ----------------
 
 export async function listStockItems(): Promise<StockItem[]> {

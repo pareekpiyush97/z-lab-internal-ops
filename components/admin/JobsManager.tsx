@@ -179,6 +179,17 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const saveEdits = (id: string, phone: string, price: number | null) =>
     patchJob(id, { phone, price }, 'Could not save.');
 
+  const deleteJobEntry = async (job: Job) => {
+    if (!confirm(`Delete ${job.jobNumber} (${job.customerName})? This permanently removes this car.`)) return;
+    const res = await fetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
+    if (res.ok) {
+      await refresh();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      alert(body.error || 'Could not delete.');
+    }
+  };
+
   return (
     <div>
       {/* Stats */}
@@ -415,6 +426,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-3">
+                    <div className="flex flex-col items-start gap-1.5">
                     {job.status === 'draft' && (
                       <button
                         onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
@@ -451,6 +463,13 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                         />
                       </div>
                     )}
+                      <button
+                        onClick={() => deleteJobEntry(job)}
+                        className="text-[11px] text-slate-400 hover:text-red-600 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 {job.status === 'draft' && expandedId === job.id && (

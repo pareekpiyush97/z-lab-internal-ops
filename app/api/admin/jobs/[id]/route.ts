@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jobPatchSchema } from '@/lib/validation';
-import { updateJob } from '@/lib/repo';
+import { updateJob, deleteJob } from '@/lib/repo';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,4 +31,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!job) return NextResponse.json({ error: 'Job not found.' }, { status: 404 });
 
   return NextResponse.json({ job });
+}
+
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ok = await deleteJob(id);
+  if (!ok) return NextResponse.json({ error: 'Car not found.' }, { status: 404 });
+  return NextResponse.json({ ok: true });
 }
