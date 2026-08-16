@@ -467,7 +467,9 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                         <span className="inline-flex items-center text-sm text-emerald-600 font-semibold px-1 py-1">Done ✓</span>
                       )}
 
-                      {/* Simple secondary actions: Edit and Delete */}
+                      {/* Edit & Delete: hidden once the car is delivered */}
+                      {job.status !== 'delivered' && (
+                        <>
                       <div className="flex items-center gap-2.5">
                         <button
                           onClick={() => (editingId === job.id ? cancelEdit() : openEdit(job))}
@@ -522,6 +524,8 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                             </button>
                           </div>
                         </div>
+                      )}
+                        </>
                       )}
                     </div>
                   </td>
