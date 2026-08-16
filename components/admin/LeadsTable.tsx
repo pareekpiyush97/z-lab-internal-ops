@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import type { Lead, LeadStatus } from '@/lib/types';
+import { JOB_SERVICES } from '@/lib/job-catalog';
 
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'booked', 'completed', 'lost'];
 
@@ -120,6 +121,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
 
   return (
     <div>
+      <datalist id="lead-services">
+        {JOB_SERVICES.map((s) => (
+          <option key={s} value={s} />
+        ))}
+      </datalist>
+
       {/* Search + Add */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <input
@@ -145,7 +152,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         <div className="mb-4 rounded-lg border border-line bg-panel p-4 grid gap-3 sm:grid-cols-4">
           <input placeholder="Name" value={addForm.name} onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))} className={inputBig} />
           <input placeholder="Phone" value={addForm.phone} onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))} className={inputBig} />
-          <input placeholder="Service (optional)" value={addForm.serviceKey} onChange={(e) => setAddForm((f) => ({ ...f, serviceKey: e.target.value }))} className={inputBig} />
+          <input list="lead-services" placeholder="Service — pick or type" value={addForm.serviceKey} onChange={(e) => setAddForm((f) => ({ ...f, serviceKey: e.target.value }))} className={inputBig} />
           <div className="flex items-center gap-2">
             <button
               onClick={addLead}
@@ -203,7 +210,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                   </td>
                   <td className="px-4 py-3 text-paperdim">
                     {editing ? (
-                      <input value={editForm.serviceKey} onChange={(e) => setEditForm((f) => ({ ...f, serviceKey: e.target.value }))} placeholder="Service" className={inputCls} />
+                      <input list="lead-services" value={editForm.serviceKey} onChange={(e) => setEditForm((f) => ({ ...f, serviceKey: e.target.value }))} placeholder="Service" className={inputCls} />
                     ) : (
                       lead.serviceKey || '—'
                     )}
