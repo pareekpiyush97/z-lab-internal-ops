@@ -137,9 +137,9 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
                 <div className="min-w-0">
                   <p className="font-semibold text-slate-900 truncate">
                     {j.customerName}
-                    <span className="ml-2 font-mono text-[11px] text-slate-400">{j.jobNumber}</span>
+                    <span className="ml-2 font-mono text-[11px] text-slate-500">{j.jobNumber}</span>
                   </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-slate-600 truncate">
                     <span className="font-mono text-slate-600">{vehicleNumber(j)}</span>
                     {j.services.length > 0 && <span> · {j.services.join(', ')}</span>}
                   </p>
@@ -168,7 +168,7 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {jobs.map((j) => (
-                    <span key={j.id} className="font-mono text-[11px] bg-slate-100 text-slate-700 rounded px-1.5 py-0.5">
+                    <span key={j.id} className="font-mono text-[11px] bg-slate-100 text-slate-800 font-medium rounded px-2 py-0.5 border border-slate-200">
                       {vehicleNumber(j)}
                     </span>
                   ))}
