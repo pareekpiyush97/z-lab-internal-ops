@@ -437,12 +437,12 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                       {STATUS_LABELS[job.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col items-start gap-2">
+                  <td className="px-4 py-4">
+                    <div className="flex flex-col items-start gap-3">
                       {job.status === 'draft' && (
                         <button
                           onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
-                          className="text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                          className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors"
                         >
                           {expandedId === job.id ? 'Close' : 'Start Work'}
                         </button>
@@ -450,7 +450,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                       {job.status === 'active' && (
                         <button
                           onClick={() => completeWork(job.id)}
-                          className="text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                          className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors"
                         >
                           Work Complete
                         </button>
@@ -458,29 +458,29 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                       {job.status === 'completed' && (
                         <button
                           onClick={() => { if (confirm(`Deliver ${job.jobNumber} to the customer? This closes it.`)) deliverJob(job.id); }}
-                          className="text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                          className="text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors"
                         >
                           Deliver
                         </button>
                       )}
                       {job.status === 'delivered' && (
-                        <span className="text-[11px] text-emerald-600 font-medium">Done ✓</span>
+                        <span className="inline-flex items-center text-sm text-emerald-600 font-semibold px-1 py-1">Done ✓</span>
                       )}
 
                       {/* Simple secondary actions: Edit and Delete */}
-                      <div className="flex items-center gap-3 text-xs">
+                      <div className="flex items-center gap-2.5">
                         <button
                           onClick={() => (editingId === job.id ? cancelEdit() : openEdit(job))}
-                          className="inline-flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-lg px-3 py-1.5 transition-colors"
                         >
-                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
                           Edit
                         </button>
                         <button
                           onClick={() => deleteJobEntry(job)}
-                          className="inline-flex items-center gap-1 text-red-500 hover:text-red-700 transition-colors"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 border border-red-300 hover:border-red-400 hover:bg-red-50 rounded-lg px-3 py-1.5 transition-colors"
                         >
-                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
+                          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
                           Delete
                         </button>
                       </div>
