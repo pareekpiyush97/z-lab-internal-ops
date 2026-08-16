@@ -54,6 +54,18 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
     return n;
   }, [jobsByDay, cursor, daysInMonth]);
 
+  // Day-by-day breakdown for the whole current month, with the cars' numbers.
+  const monthDays = useMemo(() => {
+    const arr: { day: number; jobs: Job[] }[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const list = jobsByDay.get(dayKey(cursor.y, cursor.m, d));
+      if (list && list.length) arr.push({ day: d, jobs: list });
+    }
+    return arr;
+  }, [jobsByDay, cursor, daysInMonth]);
+
+  const vehicleNumber = (j: Job) => j.confirmedPlate || j.customerPlate || j.suggestedPlate || 'No number';
+
   const prevMonth = () => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
   const nextMonth = () => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
 
@@ -152,6 +164,34 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+
+      {/* Whole-month breakdown with vehicle numbers */}
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold text-slate-700 mb-2">
+          {MONTHS[cursor.m]} {cursor.y} — {monthTotal} car{monthTotal === 1 ? '' : 's'} this month
+        </h2>
+        {monthDays.length === 0 ? (
+          <p className="text-sm text-slate-400 rounded-xl border border-slate-200 bg-white px-4 py-6 text-center">No work this month.</p>
+        ) : (
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100">
+            {monthDays.map(({ day, jobs }) => (
+              <div key={day} className="px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-4">
+                <div className="text-sm font-medium text-slate-800 sm:w-40 shrink-0">
+                  {day} {MONTHS[cursor.m]}
+                  <span className="text-slate-500 font-normal"> · {jobs.length} car{jobs.length === 1 ? '' : 's'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {jobs.map((j) => (
+                    <span key={j.id} className="font-mono text-xs bg-slate-100 text-slate-700 rounded px-2 py-0.5">
+                      {vehicleNumber(j)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
