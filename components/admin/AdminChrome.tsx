@@ -6,15 +6,16 @@ import { useState } from 'react';
 
 const STAFF_NAV = [
   { href: '/admin/jobs', label: 'Work' },
+  { href: '/admin/calendar', label: 'Calendar' },
+  { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/stock', label: 'Stock & Logistics' },
   { href: '/admin/history', label: 'Service History' },
+  { href: '/admin/reminders', label: 'Reminders' },
 ];
 
 const OWNER_NAV = [
   { href: '/admin', label: 'Overview' },
   { href: '/admin/pnl', label: 'P&L' },
-  { href: '/admin/reminders', label: 'Reminders' },
-  { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/services', label: 'Services' },
   { href: '/admin/gallery', label: 'Gallery' },
   { href: '/admin/settings', label: 'Settings' },

@@ -15,11 +15,9 @@ const SESSION_COOKIE_NAME = 'techplus_session';
 // History -- matching the original prototype's staff-console vs
 // PIN-gated-owner-console split, just with real auth instead of a PIN.
 const OWNER_ONLY_EXACT_PAGES = new Set(['/admin']);
-const OWNER_ONLY_PAGE_PREFIXES = ['/admin/pnl', '/admin/reminders', '/admin/leads', '/admin/services', '/admin/gallery', '/admin/settings'];
+const OWNER_ONLY_PAGE_PREFIXES = ['/admin/pnl', '/admin/services', '/admin/gallery', '/admin/settings'];
 const OWNER_ONLY_API_PREFIXES = [
   '/api/admin/pnl',
-  '/api/admin/reminders',
-  '/api/admin/leads',
   '/api/admin/services',
   '/api/admin/gallery',
   '/api/admin/settings',
