@@ -293,14 +293,14 @@ export async function createLead(input: {
 
 export async function updateLead(
   leadId: string,
-  patch: Partial<{ status: LeadStatus; notes: string | null }>
+  patch: Partial<{ name: string; phone: string; serviceKey: string | null; message: string | null; status: LeadStatus; notes: string | null }>
 ): Promise<Lead | null> {
   const existing = await queryOne('select * from leads where id = $1', [leadId]);
   if (!existing) return null;
   const merged = { ...mapLead(existing), ...patch };
   const row = await queryOne(
-    `update leads set status = $1, notes = $2 where id = $3 returning *`,
-    [merged.status, merged.notes, leadId]
+    `update leads set name = $1, phone = $2, service_key = $3, message = $4, status = $5, notes = $6 where id = $7 returning *`,
+    [merged.name, merged.phone, merged.serviceKey ?? null, merged.message ?? null, merged.status, merged.notes ?? null, leadId]
   );
   return row ? mapLead(row) : null;
 }
