@@ -316,20 +316,14 @@ export default function StockManager({
               </tr>
             )}
             {items.map((item) => {
-              const low = item.qty <= item.lowAt;
               return (
                 <tr key={item.id} className="border-b border-slate-100 last:border-0">
                   <td className="px-4 py-3 font-medium text-slate-800">{item.name}</td>
                   <td className="px-4 py-3 text-slate-600">{item.category}</td>
                   <td className="px-4 py-3">
-                    <span className={low ? 'text-red-600 font-medium' : 'text-slate-700'}>
+                    <span style={{ fontFamily: 'Arial, Helvetica, sans-serif' }} className="text-black font-normal">
                       {item.qty} {item.unit}
                     </span>
-                    {low && (
-                      <span className="ml-2 inline-block text-[10px] font-medium bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">
-                        LOW
-                      </span>
-                    )}
                   </td>
                   <td className="px-4 py-3">
                     <StockQtyControl
