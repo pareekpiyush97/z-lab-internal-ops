@@ -386,7 +386,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-slate-500 border-b border-slate-200">
+            <tr className="text-left text-xs text-slate-600 border-b border-slate-200">
               <th className="px-4 py-2.5 font-medium">No.</th>
               <th className="px-4 py-2.5 font-medium">Customer</th>
               <th className="px-4 py-2.5 font-medium">Car</th>
@@ -407,18 +407,18 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
             {filtered.map((job) => (
               <Fragment key={job.id}>
                 <tr className="border-b border-slate-100 last:border-0 align-top">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{job.jobNumber}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">{job.jobNumber}</td>
                   <td className="px-4 py-3">
                     <p className="font-medium text-slate-800">{job.customerName}</p>
-                    <p className="text-xs text-slate-500">{job.phone}</p>
+                    <p className="text-xs text-slate-600">{job.phone || '—'}</p>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{job.carModel || '—'}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-600">
+                  <td className="px-4 py-3 text-slate-800 font-medium">{job.carModel || '—'}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-800 font-medium">
                     {job.confirmedPlate || job.customerPlate || job.suggestedPlate || '—'}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-600 max-w-[220px]">
+                  <td className="px-4 py-3 text-xs text-slate-800 max-w-[220px]">
                     {job.services.join(', ') || '—'}
-                    {job.price != null && <span className="block text-slate-400 mt-0.5">₹{job.price.toLocaleString('en-IN')}</span>}
+                    {job.price != null && <span className="block text-slate-700 font-semibold mt-0.5">₹{job.price.toLocaleString('en-IN')}</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLES[job.status]}`}>
@@ -465,7 +465,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
                     )}
                       <button
                         onClick={() => deleteJobEntry(job)}
-                        className="text-[11px] text-slate-400 hover:text-red-600 transition-colors"
+                        className="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-md transition-colors self-start"
                       >
                         Delete
                       </button>
