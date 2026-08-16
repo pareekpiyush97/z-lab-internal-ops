@@ -1,12 +1,70 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Lead, LeadStatus } from '@/lib/types';
 import { JOB_SERVICES } from '@/lib/job-catalog';
 
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'booked', 'completed', 'lost'];
 
 type EditForm = { name: string; phone: string; serviceKey: string };
+
+function ServiceCombo({
+  value,
+  onChange,
+  placeholder,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const q = value.trim().toLowerCase();
+  const options = q ? JOB_SERVICES.filter((s) => s.toLowerCase().includes(q)) : JOB_SERVICES;
+
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        className={className}
+      />
+      {open && options.length > 0 && (
+        <div className="absolute z-30 mt-1 w-full max-h-44 overflow-y-auto rounded-lg border border-line bg-panel2 shadow-xl">
+          {options.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(s);
+                setOpen(false);
+              }}
+              className="block w-full text-left px-3 py-2 text-sm text-paper hover:bg-panel"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
   const [leads, setLeads] = useState(initialLeads);
@@ -152,7 +210,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         <div className="mb-4 rounded-lg border border-line bg-panel p-4 grid gap-3 sm:grid-cols-4">
           <input placeholder="Name" value={addForm.name} onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))} className={inputBig} />
           <input placeholder="Phone" value={addForm.phone} onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))} className={inputBig} />
-          <input list="lead-services" placeholder="Service — pick or type" value={addForm.serviceKey} onChange={(e) => setAddForm((f) => ({ ...f, serviceKey: e.target.value }))} className={inputBig} />
+          <ServiceCombo value={addForm.serviceKey} onChange={(v) => setAddForm((f) => ({ ...f, serviceKey: v }))} placeholder="Service — pick or type" className={inputBig} />
           <div className="flex items-center gap-2">
             <button
               onClick={addLead}
