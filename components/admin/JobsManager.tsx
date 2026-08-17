@@ -158,6 +158,10 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     });
+    if (res.status === 401) {
+      window.location.href = '/admin/login?next=/admin/jobs';
+      return 'Your session expired — please log in again.';
+    }
     const body = await res.json();
     if (!res.ok) return body.error || failMsg;
     await refresh();
