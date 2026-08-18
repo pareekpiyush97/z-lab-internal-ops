@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 import type { Service } from '@/lib/types';
 
@@ -56,7 +58,7 @@ export default function ServicesManager({ initialServices }: { initialServices: 
   const [saving, setSaving] = useState(false);
 
   const refresh = async () => {
-    const res = await fetch('/api/admin/services');
+    const res = await adminFetch('/api/admin/services');
     const body = await res.json();
     setServices(body.services);
   };
@@ -98,12 +100,12 @@ export default function ServicesManager({ initialServices }: { initialServices: 
 
   const remove = async (id: string) => {
     if (!confirm('Delete this service? This cannot be undone.')) return;
-    await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/admin/services/${id}`, { method: 'DELETE' });
     await refresh();
   };
 
   const toggleActive = async (s: Service) => {
-    await fetch(`/api/admin/services/${s.id}`, {
+    await adminFetch(`/api/admin/services/${s.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !s.isActive }),

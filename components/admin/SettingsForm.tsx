@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 
 const FIELDS: { key: string; label: string; hint?: string; multiline?: boolean }[] = [
@@ -25,7 +27,7 @@ export default function SettingsForm({ initialSettings }: { initialSettings: Rec
     setSaving(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await adminFetch('/api/admin/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),

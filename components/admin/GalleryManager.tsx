@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useRef, useState } from 'react';
 import type { GalleryItem } from '@/lib/types';
 
@@ -23,7 +25,7 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
   const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = async () => {
-    const res = await fetch('/api/admin/gallery');
+    const res = await adminFetch('/api/admin/gallery');
     const body = await res.json();
     setItems(body.gallery);
   };
@@ -34,7 +36,7 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || 'Upload failed.');
       setForm((f) => (f ? { ...f, imageUrl: body.url } : f));
@@ -75,12 +77,12 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
 
   const remove = async (id: string) => {
     if (!confirm('Delete this photo from the gallery?')) return;
-    await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
+    await adminFetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
     await refresh();
   };
 
   const toggleActive = async (item: GalleryItem) => {
-    await fetch(`/api/admin/gallery/${item.id}`, {
+    await adminFetch(`/api/admin/gallery/${item.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !item.isActive }),

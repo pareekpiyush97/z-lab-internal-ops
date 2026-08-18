@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 import type { Job } from '@/lib/types';
 
@@ -48,7 +50,7 @@ export default function HistoryLookup() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/history?plate=${encodeURIComponent(q)}`);
+      const res = await adminFetch(`/api/admin/history?plate=${encodeURIComponent(q)}`);
       const body = await res.json();
       if (!res.ok) {
         setError(body.error || 'Search failed.');

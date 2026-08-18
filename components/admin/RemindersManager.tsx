@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 import type { Reminder, StockItem } from '@/lib/types';
 
@@ -18,7 +20,7 @@ export default function RemindersManager({
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const refresh = async () => {
-    const res = await fetch('/api/admin/reminders');
+    const res = await adminFetch('/api/admin/reminders');
     const body = await res.json();
     setReminders(body.reminders);
   };
@@ -32,7 +34,7 @@ export default function RemindersManager({
     setError('');
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/reminders', {
+      const res = await adminFetch('/api/admin/reminders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text.trim(), dueDate: dueDate || undefined }),
@@ -53,7 +55,7 @@ export default function RemindersManager({
   const toggle = async (r: Reminder) => {
     setBusyId(r.id);
     try {
-      const res = await fetch(`/api/admin/reminders/${r.id}`, {
+      const res = await adminFetch(`/api/admin/reminders/${r.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ done: !r.done }),
@@ -67,7 +69,7 @@ export default function RemindersManager({
   const remove = async (r: Reminder) => {
     setBusyId(r.id);
     try {
-      const res = await fetch(`/api/admin/reminders/${r.id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/admin/reminders/${r.id}`, { method: 'DELETE' });
       if (res.ok) await refresh();
     } finally {
       setBusyId(null);

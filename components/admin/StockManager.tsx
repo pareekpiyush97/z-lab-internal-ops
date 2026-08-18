@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useEffect, useMemo, useState } from 'react';
 import type { StockItem, StockPurchase } from '@/lib/types';
 import { STOCK_CATEGORIES } from '@/lib/job-catalog';
@@ -35,14 +37,14 @@ export default function StockManager({
   const lowStockCount = useMemo(() => items.filter((i) => i.qty <= i.lowAt).length, [items]);
 
   const refreshItems = async () => {
-    const res = await fetch('/api/admin/stock');
+    const res = await adminFetch('/api/admin/stock');
     const body = await res.json();
     setItems(body.items);
   };
 
   const refreshPurchases = async () => {
     if (!isOwner) return;
-    const res = await fetch('/api/admin/stock-purchases');
+    const res = await adminFetch('/api/admin/stock-purchases');
     const body = await res.json();
     setPurchases(body.purchases);
   };
@@ -62,7 +64,7 @@ export default function StockManager({
     setItemError('');
     setItemSaving(true);
     try {
-      const res = await fetch('/api/admin/stock', {
+      const res = await adminFetch('/api/admin/stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,7 +91,7 @@ export default function StockManager({
   const adjust = async (id: string, delta: number) => {
     setBusyId(id);
     try {
-      const res = await fetch(`/api/admin/stock/${id}`, {
+      const res = await adminFetch(`/api/admin/stock/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ delta }),
@@ -104,7 +106,7 @@ export default function StockManager({
     if (!confirm(`Remove "${item.name}" from stock? This can't be undone.`)) return;
     setBusyId(item.id);
     try {
-      const res = await fetch(`/api/admin/stock/${item.id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/admin/stock/${item.id}`, { method: 'DELETE' });
       if (res.ok) await refreshItems();
     } finally {
       setBusyId(null);
@@ -130,7 +132,7 @@ export default function StockManager({
     setPurchaseError('');
     setPurchaseSaving(true);
     try {
-      const res = await fetch('/api/admin/stock-purchases', {
+      const res = await adminFetch('/api/admin/stock-purchases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemName: purchaseForm.itemName.trim(), qty, unitCost }),

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 import type { PnlSummary } from '@/lib/types';
 
@@ -22,7 +24,7 @@ export default function PnlManager({ initialSummary }: { initialSummary: PnlSumm
     if (period === summary.period) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/pnl?period=${period}`);
+      const res = await adminFetch(`/api/admin/pnl?period=${period}`);
       const body = await res.json();
       if (res.ok) setSummary(body.summary);
     } finally {

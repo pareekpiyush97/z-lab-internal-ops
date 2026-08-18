@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Lead, LeadStatus } from '@/lib/types';
 import { JOB_SERVICES } from '@/lib/job-catalog';
@@ -88,7 +90,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     setSavingId(id);
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
     try {
-      const res = await fetch(`/api/admin/leads/${id}`, {
+      const res = await adminFetch(`/api/admin/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -110,7 +112,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     if (!confirm(`Delete lead \"${lead.name}\"? This cannot be undone.`)) return;
     setSavingId(lead.id);
     try {
-      const res = await fetch(`/api/admin/leads/${lead.id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/admin/leads/${lead.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       setLeads((prev) => prev.filter((l) => l.id !== lead.id));
     } catch {
@@ -132,7 +134,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     setSavingId(id);
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
     try {
-      const res = await fetch(`/api/admin/leads/${id}`, {
+      const res = await adminFetch(`/api/admin/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
@@ -155,7 +157,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
     }
     setAddSaving(true);
     try {
-      const res = await fetch('/api/admin/leads', {
+      const res = await adminFetch('/api/admin/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

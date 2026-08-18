@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { useState } from 'react';
 
 export default function PasswordLoginCard() {
@@ -23,7 +25,7 @@ export default function PasswordLoginCard() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/change-password', {
+      const res = await adminFetch('/api/admin/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword: pw }),

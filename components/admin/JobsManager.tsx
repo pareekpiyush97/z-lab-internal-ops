@@ -1,5 +1,7 @@
 'use client';
 
+import { adminFetch } from '@/lib/adminFetch';
+
 import { Fragment, useMemo, useState } from 'react';
 import type { Job } from '@/lib/types';
 import { JOB_CATEGORIES, JOB_SERVICES } from '@/lib/job-catalog';
@@ -57,7 +59,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   const [editForm, setEditForm] = useState({ customerName: '', phone: '', carModel: '', carNumber: '', price: '' });
 
   const refresh = async () => {
-    const res = await fetch('/api/admin/jobs');
+    const res = await adminFetch('/api/admin/jobs');
     const body = await res.json();
     setJobs(body.jobs);
   };
@@ -129,7 +131,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
       };
       // One job per car, all under the same customer.
       for (const car of intake.cars) {
-        const res = await fetch('/api/admin/jobs', {
+        const res = await adminFetch('/api/admin/jobs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -153,15 +155,11 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
   };
 
   const patchJob = async (id: string, patch: Record<string, unknown>, failMsg: string) => {
-    const res = await fetch(`/api/admin/jobs/${id}`, {
+    const res = await adminFetch(`/api/admin/jobs/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     });
-    if (res.status === 401) {
-      window.location.href = '/admin/login?next=/admin/jobs';
-      return 'Your session expired — please log in again.';
-    }
     const body = await res.json();
     if (!res.ok) return body.error || failMsg;
     await refresh();
@@ -214,7 +212,7 @@ export default function JobsManager({ initialJobs }: { initialJobs: Job[] }) {
 
   const deleteJobEntry = async (job: Job) => {
     if (!confirm(`Delete ${job.jobNumber} (${job.customerName})? This permanently removes this car.`)) return;
-    const res = await fetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
+    const res = await adminFetch(`/api/admin/jobs/${job.id}`, { method: 'DELETE' });
     if (res.ok) {
       await refresh();
     } else {
