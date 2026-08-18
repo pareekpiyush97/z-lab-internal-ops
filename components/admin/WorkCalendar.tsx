@@ -77,7 +77,13 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
     : '';
 
   return (
-    <div className="grid lg:grid-cols-[300px_1fr] gap-6 items-start">
+    <div>
+      <div className="mb-5 inline-flex items-center gap-3 rounded-xl border border-line bg-panel2 px-4 py-2.5">
+        <span className="text-[11px] uppercase tracking-wide text-paperdim">Total cars · all-time</span>
+        <span className="text-xl font-semibold text-paper">{initialJobs.length}</span>
+      </div>
+
+      <div className="grid lg:grid-cols-[300px_1fr] gap-6 items-start">
       {/* Compact calendar (left) */}
       <div className="w-full max-w-[300px]">
         <div className="flex items-center justify-between mb-2">
@@ -178,6 +184,7 @@ export default function WorkCalendar({ initialJobs }: { initialJobs: Job[] }) {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
